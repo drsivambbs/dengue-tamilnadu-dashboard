@@ -1,7 +1,7 @@
-import { useEffect, useMemo, useState, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
 import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/maplibre'
-import type { MapLayerMouseEvent, StyleSpecification } from 'react-map-gl/maplibre'
-import type { FeatureCollection } from 'geojson'
+import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
+import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { getYearValues, getRecord, isPartial } from '../dataService'
 import { colorExpression, METRIC_CONFIG } from '../metrics'
@@ -31,7 +31,45 @@ interface Hover {
   district: string
 }
 
-export function MapView({ year, metric }: { year: Year; metric: Metric }) {
+type Bounds = [[number, number], [number, number]]
+
+// Whole-state view to reset to when the selection is cleared.
+const TN_BOUNDS: Bounds = [
+  [76.0, 8.0],
+  [80.5, 13.7],
+]
+
+/** Bounding box of a (Multi)Polygon feature → [[w,s],[e,n]]. */
+function featureBounds(feature: Feature): Bounds {
+  let minX = 180, minY = 90, maxX = -180, maxY = -90
+  const visit = (pos: Position) => {
+    const [x, y] = pos
+    if (x < minX) minX = x
+    if (y < minY) minY = y
+    if (x > maxX) maxX = x
+    if (y > maxY) maxY = y
+  }
+  const walk = (coords: unknown): void => {
+    if (typeof (coords as number[])[0] === 'number') visit(coords as Position)
+    else (coords as unknown[]).forEach(walk)
+  }
+  const g = feature.geometry
+  if (g.type === 'Polygon' || g.type === 'MultiPolygon') walk(g.coordinates)
+  return [
+    [minX, minY],
+    [maxX, maxY],
+  ]
+}
+
+interface Props {
+  year: Year
+  metric: Metric
+  selected: string | null
+  onSelect: (d: string | null) => void
+}
+
+export function MapView({ year, metric, selected, onSelect }: Props) {
+  const mapRef = useRef<MapRef | null>(null)
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
@@ -43,6 +81,20 @@ export function MapView({ year, metric }: { year: Year; metric: Metric }) {
       .then(setGeo)
       .catch(() => setGeo(null))
   }, [])
+
+  // Zoom to the selected district (or back to the whole state when cleared).
+  useEffect(() => {
+    const map = mapRef.current
+    if (!map || !geo) return
+    if (!selected) {
+      map.fitBounds(TN_BOUNDS, { padding: 20, duration: 700 })
+      return
+    }
+    const feat = geo.features.find(
+      (f) => (f.properties as { district: string }).district === selected,
+    )
+    if (feat) map.fitBounds(featureBounds(feat), { padding: 80, duration: 800, maxZoom: 9 })
+  }, [selected, geo])
 
   // Merge the selected metric's value into each feature for data-driven styling.
   const fc = useMemo<FeatureCollection | null>(() => {
@@ -69,6 +121,15 @@ export function MapView({ year, metric }: { year: Year; metric: Metric }) {
     }
   }, [])
 
+  const onClick = useCallback(
+    (e: MapLayerMouseEvent) => {
+      const feat = e.features?.[0]
+      const d = feat ? (feat.properties as { district: string }).district : null
+      onSelect(d && d === selected ? null : d) // click again to deselect
+    },
+    [onSelect, selected],
+  )
+
   const fmt = METRIC_CONFIG[metric].format
   const hoverRec = hover ? getRecord(hover.district, year) : undefined
 
@@ -84,11 +145,14 @@ export function MapView({ year, metric }: { year: Year; metric: Metric }) {
 
       <div className="relative flex-1">
         <MapGL
+          ref={mapRef}
           initialViewState={{ longitude: 78.4, latitude: 10.85, zoom: 5.9 }}
           mapStyle={BASEMAP}
           interactiveLayerIds={['district-fill']}
           onMouseMove={onMove}
           onMouseLeave={() => setHover(null)}
+          onClick={onClick}
+          cursor={hover ? 'pointer' : 'grab'}
           attributionControl={{ compact: true }}
           style={{ position: 'absolute', inset: 0 }}
         >
@@ -109,7 +173,13 @@ export function MapView({ year, metric }: { year: Year; metric: Metric }) {
                 id="district-hover"
                 type="line"
                 filter={['==', ['get', 'district'], hover?.district ?? '']}
-                paint={{ 'line-color': '#0e3460', 'line-width': 2.4 }}
+                paint={{ 'line-color': '#0e3460', 'line-width': 1.6 }}
+              />
+              <Layer
+                id="district-selected"
+                type="line"
+                filter={['==', ['get', 'district'], selected ?? '']}
+                paint={{ 'line-color': '#0e3460', 'line-width': 3.2 }}
               />
             </Source>
           )}
