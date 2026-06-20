@@ -1,0 +1,22 @@
+# Claude Code local settings
+.claude/
+
+# Large source boundary file (~48 MB) — auto-downloaded by analysis/make_map.py
+data/raw/geoBoundaries-IND-ADM2.geojson
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Node / dashboard (Phase 1)
+node_modules/
+dist/
+.env
+.env.local
+
+# OS
+.DS_Store
+Thumbs.db
