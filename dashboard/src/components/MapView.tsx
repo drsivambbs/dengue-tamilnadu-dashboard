@@ -103,7 +103,7 @@ export function MapView({ year, metric }: { year: Year; metric: Metric }) {
               <Layer
                 id="district-line"
                 type="line"
-                paint={{ 'line-color': '#ffffff', 'line-width': 0.8 }}
+                paint={{ 'line-color': '#000000', 'line-width': 0.5 }}
               />
               <Layer
                 id="district-hover"
