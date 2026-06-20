@@ -3,7 +3,7 @@ import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/map
 import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { getYearValues, getRecord, isPartial } from '../dataService'
+import { getYearValues, getRecord } from '../dataService'
 import { colorExpression, METRIC_CONFIG } from '../metrics'
 import { METRICS, type Metric, type Year } from '../types'
 
@@ -73,7 +73,6 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
-  const partial = isPartial(year)
 
   useEffect(() => {
     fetch('/tamilnadu_districts.geojson')
@@ -134,16 +133,7 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
   const hoverRec = hover ? getRecord(hover.district, year) : undefined
 
   return (
-    <section className="relative flex flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-line bg-surface shadow-sm">
-      <div className="flex items-baseline justify-between gap-4 border-b border-line px-6 py-4">
-        <h2 className="font-serif text-[1.15rem] font-600 text-ink">{metricLabel} by district</h2>
-        <span className="rounded-md bg-brand-soft px-3 py-1 text-[0.85rem] font-600 text-brand-strong">
-          {year}
-          {partial && <span className="ml-1 font-400 text-brand">· {partial}</span>}
-        </span>
-      </div>
-
-      <div className="relative flex-1">
+    <div className="relative h-full w-full">
         <MapGL
           ref={mapRef}
           initialViewState={{ longitude: 78.4, latitude: 10.85, zoom: 5.9 }}
@@ -201,8 +191,7 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
             </dl>
           </div>
         )}
-      </div>
-    </section>
+    </div>
   )
 }
 
