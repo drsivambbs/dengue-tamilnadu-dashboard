@@ -46,3 +46,31 @@ export function getMonthly(year: Year) {
 export function isPartial(year: Year): string | undefined {
   return db.meta.partial[String(year)]
 }
+
+/** Totals for the chosen scope: a single district, or all of Tamil Nadu. */
+export function getScopeTotals(year: Year, district: string | null): DistrictMetric {
+  if (district) return getRecord(district, year) ?? getStateTotals(year)
+  return getStateTotals(year)
+}
+
+/** Monthly cases (12 values) for the scope. State = sum across districts. */
+export function getMonthlyCases(year: Year, district: string | null): number[] {
+  const m = db.monthly[String(year)]
+  if (district) return m[district]?.cases ?? new Array(12).fill(0)
+  const sum = new Array(12).fill(0)
+  for (const d of Object.values(m)) d.cases.forEach((v, i) => (sum[i] += v))
+  return sum
+}
+
+/** Year-on-year change in cases vs the previous year, for the scope. */
+export function getYoYChange(
+  year: Year,
+  district: string | null,
+): { pct: number; prevYear: number } | null {
+  const prev = (year - 1) as Year
+  if (!db.meta.years.includes(prev)) return null
+  const cur = getScopeTotals(year, district).cases
+  const before = getScopeTotals(prev, district).cases
+  if (!before) return null
+  return { pct: ((cur - before) / before) * 100, prevYear: prev }
+}

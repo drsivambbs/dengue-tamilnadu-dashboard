@@ -24,7 +24,7 @@ function App() {
         />
         <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
           <MapView year={year} metric={metric} selected={selected} onSelect={setSelected} />
-          <ChartsStrip />
+          <ChartsStrip year={year} selected={selected} />
         </main>
       </div>
     </div>
