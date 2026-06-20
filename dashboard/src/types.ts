@@ -13,3 +13,29 @@ export const METRICS: { id: Metric; label: string; help: string }[] = [
   { id: 'deaths', label: 'Deaths', help: 'Reported dengue deaths' },
   { id: 'cfr', label: 'Case fatality ratio', help: 'Deaths ÷ cases (%)' },
 ]
+
+// ---- Data file shapes (dengue.json) ----
+export interface DistrictMetric {
+  cases: number
+  deaths: number
+  population: number
+  attackRate: number
+  cfr: number
+}
+
+export interface DistrictRecord {
+  district: string
+  metrics: Record<string, DistrictMetric>
+}
+
+export interface DengueData {
+  meta: {
+    source: string
+    populationSource: string
+    years: number[]
+    partial: Record<string, string>
+  }
+  districts: DistrictRecord[]
+  stateTotals: Record<string, DistrictMetric>
+  monthly: Record<string, Record<string, { cases: number[]; deaths: number[] }>>
+}

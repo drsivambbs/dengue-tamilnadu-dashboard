@@ -1,4 +1,5 @@
 import { Panel } from './Panel'
+import { legendRows, METRIC_CONFIG } from '../metrics'
 import { METRICS, YEARS, type Metric, type Year } from '../types'
 
 interface Props {
@@ -105,12 +106,10 @@ export function Sidebar({ year, metric, onYear, onMetric }: Props) {
       </Panel>
 
       {/* LEGEND --------------------------------------------------------- */}
-      <Panel title="Legend">
-        <LegendSwatch color="#ffffcc" label="Low" />
-        <LegendSwatch color="#fed976" label="" />
-        <LegendSwatch color="#fd8d3c" label="Moderate" />
-        <LegendSwatch color="#e31a1c" label="" />
-        <LegendSwatch color="#800026" label="High" />
+      <Panel title="Legend" hint={`${METRICS.find((m) => m.id === metric)?.label} (${METRIC_CONFIG[metric].unit})`}>
+        {legendRows(metric).map((row) => (
+          <LegendSwatch key={row.color} color={row.color} label={row.label} />
+        ))}
         <div className="mt-2 flex items-center gap-2.5 py-1">
           <span className="h-4 w-7 rounded-sm border border-line-strong bg-[#d9d9d9]" />
           <span className="text-[0.85rem] text-ink-soft">No data</span>

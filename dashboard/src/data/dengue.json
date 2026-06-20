@@ -1,0 +1,4455 @@
+{
+  "meta": {
+    "source": "Integrated Health Information Platform (IHIP), Tamil Nadu",
+    "populationSource": "Government of Tamil Nadu (Census 2011, projected)",
+    "years": [
+      2024,
+      2025,
+      2026
+    ],
+    "partial": {
+      "2026": "Jan\u2013Jun"
+    }
+  },
+  "districts": [
+    {
+      "district": "Ariyalur",
+      "metrics": {
+        "2024": {
+          "cases": 892,
+          "deaths": 0,
+          "population": 911677,
+          "attackRate": 97.8,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 541,
+          "deaths": 0,
+          "population": 924997,
+          "attackRate": 58.5,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 159,
+          "deaths": 0,
+          "population": 938512,
+          "attackRate": 16.9,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Chengalpattu",
+      "metrics": {
+        "2024": {
+          "cases": 1220,
+          "deaths": 2,
+          "population": 3086419,
+          "attackRate": 39.5,
+          "cfr": 0.16
+        },
+        "2025": {
+          "cases": 983,
+          "deaths": 1,
+          "population": 3131514,
+          "attackRate": 31.4,
+          "cfr": 0.1
+        },
+        "2026": {
+          "cases": 260,
+          "deaths": 0,
+          "population": 3177269,
+          "attackRate": 8.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Chennai",
+      "metrics": {
+        "2024": {
+          "cases": 7184,
+          "deaths": 1,
+          "population": 5611341,
+          "attackRate": 128.0,
+          "cfr": 0.01
+        },
+        "2025": {
+          "cases": 6347,
+          "deaths": 2,
+          "population": 5693328,
+          "attackRate": 111.5,
+          "cfr": 0.03
+        },
+        "2026": {
+          "cases": 1433,
+          "deaths": 0,
+          "population": 5776513,
+          "attackRate": 24.8,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Coimbatore",
+      "metrics": {
+        "2024": {
+          "cases": 6449,
+          "deaths": 2,
+          "population": 4175601,
+          "attackRate": 154.4,
+          "cfr": 0.03
+        },
+        "2025": {
+          "cases": 1912,
+          "deaths": 0,
+          "population": 4236611,
+          "attackRate": 45.1,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 930,
+          "deaths": 0,
+          "population": 4298511,
+          "attackRate": 21.6,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Cuddalore",
+      "metrics": {
+        "2024": {
+          "cases": 2050,
+          "deaths": 0,
+          "population": 3146795,
+          "attackRate": 65.1,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 1534,
+          "deaths": 0,
+          "population": 3192772,
+          "attackRate": 48.0,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 433,
+          "deaths": 0,
+          "population": 3239422,
+          "attackRate": 13.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Dharmapuri",
+      "metrics": {
+        "2024": {
+          "cases": 492,
+          "deaths": 0,
+          "population": 1819731,
+          "attackRate": 27.0,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 155,
+          "deaths": 0,
+          "population": 1846319,
+          "attackRate": 8.4,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 24,
+          "deaths": 0,
+          "population": 1873296,
+          "attackRate": 1.3,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Dindigul",
+      "metrics": {
+        "2024": {
+          "cases": 572,
+          "deaths": 0,
+          "population": 2608241,
+          "attackRate": 21.9,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 147,
+          "deaths": 0,
+          "population": 2646350,
+          "attackRate": 5.6,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 75,
+          "deaths": 0,
+          "population": 2685016,
+          "attackRate": 2.8,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Erode",
+      "metrics": {
+        "2024": {
+          "cases": 820,
+          "deaths": 1,
+          "population": 2719333,
+          "attackRate": 30.2,
+          "cfr": 0.12
+        },
+        "2025": {
+          "cases": 547,
+          "deaths": 1,
+          "population": 2759065,
+          "attackRate": 19.8,
+          "cfr": 0.18
+        },
+        "2026": {
+          "cases": 175,
+          "deaths": 0,
+          "population": 2799378,
+          "attackRate": 6.3,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Kallakurichi",
+      "metrics": {
+        "2024": {
+          "cases": 427,
+          "deaths": 0,
+          "population": 1654301,
+          "attackRate": 25.8,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 273,
+          "deaths": 0,
+          "population": 1678472,
+          "attackRate": 16.3,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 55,
+          "deaths": 0,
+          "population": 1702996,
+          "attackRate": 3.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Kanchipuram",
+      "metrics": {
+        "2024": {
+          "cases": 966,
+          "deaths": 0,
+          "population": 1407967,
+          "attackRate": 68.6,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 908,
+          "deaths": 0,
+          "population": 1428539,
+          "attackRate": 63.6,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 249,
+          "deaths": 0,
+          "population": 1449411,
+          "attackRate": 17.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Kanniyakumari",
+      "metrics": {
+        "2024": {
+          "cases": 708,
+          "deaths": 0,
+          "population": 2258061,
+          "attackRate": 31.4,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 507,
+          "deaths": 0,
+          "population": 2291053,
+          "attackRate": 22.1,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 219,
+          "deaths": 0,
+          "population": 2324528,
+          "attackRate": 9.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Karur",
+      "metrics": {
+        "2024": {
+          "cases": 245,
+          "deaths": 0,
+          "population": 1284800,
+          "attackRate": 19.1,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 91,
+          "deaths": 0,
+          "population": 1303572,
+          "attackRate": 7.0,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 83,
+          "deaths": 0,
+          "population": 1322619,
+          "attackRate": 6.3,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Krishnagiri",
+      "metrics": {
+        "2024": {
+          "cases": 2664,
+          "deaths": 0,
+          "population": 2270136,
+          "attackRate": 117.3,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 519,
+          "deaths": 0,
+          "population": 2303305,
+          "attackRate": 22.5,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 94,
+          "deaths": 0,
+          "population": 2336958,
+          "attackRate": 4.0,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Madurai",
+      "metrics": {
+        "2024": {
+          "cases": 1128,
+          "deaths": 0,
+          "population": 3668443,
+          "attackRate": 30.7,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 249,
+          "deaths": 0,
+          "population": 3722043,
+          "attackRate": 6.7,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 112,
+          "deaths": 0,
+          "population": 3776425,
+          "attackRate": 3.0,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Mayiladuthurai",
+      "metrics": {
+        "2024": {
+          "cases": 397,
+          "deaths": 0,
+          "population": 1108503,
+          "attackRate": 35.8,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 364,
+          "deaths": 0,
+          "population": 1124699,
+          "attackRate": 32.4,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 59,
+          "deaths": 0,
+          "population": 1141132,
+          "attackRate": 5.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Nagapattinam",
+      "metrics": {
+        "2024": {
+          "cases": 255,
+          "deaths": 0,
+          "population": 842848,
+          "attackRate": 30.3,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 190,
+          "deaths": 0,
+          "population": 855163,
+          "attackRate": 22.2,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 52,
+          "deaths": 0,
+          "population": 867658,
+          "attackRate": 6.0,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Namakkal",
+      "metrics": {
+        "2024": {
+          "cases": 920,
+          "deaths": 1,
+          "population": 2085386,
+          "attackRate": 44.1,
+          "cfr": 0.11
+        },
+        "2025": {
+          "cases": 326,
+          "deaths": 0,
+          "population": 2115855,
+          "attackRate": 15.4,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 83,
+          "deaths": 1,
+          "population": 2146770,
+          "attackRate": 3.9,
+          "cfr": 1.2
+        }
+      }
+    },
+    {
+      "district": "Perambalur",
+      "metrics": {
+        "2024": {
+          "cases": 466,
+          "deaths": 1,
+          "population": 682248,
+          "attackRate": 68.3,
+          "cfr": 0.21
+        },
+        "2025": {
+          "cases": 235,
+          "deaths": 0,
+          "population": 692217,
+          "attackRate": 33.9,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 54,
+          "deaths": 0,
+          "population": 702331,
+          "attackRate": 7.7,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Pudukkottai",
+      "metrics": {
+        "2024": {
+          "cases": 847,
+          "deaths": 0,
+          "population": 1953766,
+          "attackRate": 43.4,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 531,
+          "deaths": 2,
+          "population": 1982312,
+          "attackRate": 26.8,
+          "cfr": 0.38
+        },
+        "2026": {
+          "cases": 195,
+          "deaths": 0,
+          "population": 2011276,
+          "attackRate": 9.7,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Ramanathapuram",
+      "metrics": {
+        "2024": {
+          "cases": 664,
+          "deaths": 0,
+          "population": 1633773,
+          "attackRate": 40.6,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 271,
+          "deaths": 0,
+          "population": 1657644,
+          "attackRate": 16.3,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 188,
+          "deaths": 0,
+          "population": 1681864,
+          "attackRate": 11.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Ranipet",
+      "metrics": {
+        "2024": {
+          "cases": 382,
+          "deaths": 1,
+          "population": 1461098,
+          "attackRate": 26.1,
+          "cfr": 0.26
+        },
+        "2025": {
+          "cases": 333,
+          "deaths": 1,
+          "population": 1482446,
+          "attackRate": 22.5,
+          "cfr": 0.3
+        },
+        "2026": {
+          "cases": 73,
+          "deaths": 0,
+          "population": 1504106,
+          "attackRate": 4.9,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Salem",
+      "metrics": {
+        "2024": {
+          "cases": 970,
+          "deaths": 0,
+          "population": 4204582,
+          "attackRate": 23.1,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 399,
+          "deaths": 0,
+          "population": 4266015,
+          "attackRate": 9.4,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 120,
+          "deaths": 0,
+          "population": 4328345,
+          "attackRate": 2.8,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Sivaganga",
+      "metrics": {
+        "2024": {
+          "cases": 424,
+          "deaths": 0,
+          "population": 1616868,
+          "attackRate": 26.2,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 140,
+          "deaths": 0,
+          "population": 1640492,
+          "attackRate": 8.5,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 60,
+          "deaths": 0,
+          "population": 1664461,
+          "attackRate": 3.6,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tenkasi",
+      "metrics": {
+        "2024": {
+          "cases": 625,
+          "deaths": 0,
+          "population": 1700187,
+          "attackRate": 36.8,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 240,
+          "deaths": 0,
+          "population": 1725028,
+          "attackRate": 13.9,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 147,
+          "deaths": 0,
+          "population": 1750233,
+          "attackRate": 8.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Thanjavur",
+      "metrics": {
+        "2024": {
+          "cases": 1252,
+          "deaths": 1,
+          "population": 2905291,
+          "attackRate": 43.1,
+          "cfr": 0.08
+        },
+        "2025": {
+          "cases": 841,
+          "deaths": 0,
+          "population": 2947740,
+          "attackRate": 28.5,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 250,
+          "deaths": 0,
+          "population": 2990809,
+          "attackRate": 8.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "The Nilgiris",
+      "metrics": {
+        "2024": {
+          "cases": 599,
+          "deaths": 1,
+          "population": 887527,
+          "attackRate": 67.5,
+          "cfr": 0.17
+        },
+        "2025": {
+          "cases": 91,
+          "deaths": 0,
+          "population": 900494,
+          "attackRate": 10.1,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 50,
+          "deaths": 0,
+          "population": 913651,
+          "attackRate": 5.5,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Theni",
+      "metrics": {
+        "2024": {
+          "cases": 896,
+          "deaths": 0,
+          "population": 1504569,
+          "attackRate": 59.6,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 355,
+          "deaths": 0,
+          "population": 1526552,
+          "attackRate": 23.3,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 117,
+          "deaths": 0,
+          "population": 1548856,
+          "attackRate": 7.6,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Thiruvallur",
+      "metrics": {
+        "2024": {
+          "cases": 2410,
+          "deaths": 0,
+          "population": 4501631,
+          "attackRate": 53.5,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 2143,
+          "deaths": 0,
+          "population": 4567404,
+          "attackRate": 46.9,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 285,
+          "deaths": 1,
+          "population": 4634138,
+          "attackRate": 6.2,
+          "cfr": 0.35
+        }
+      }
+    },
+    {
+      "district": "Thiruvarur",
+      "metrics": {
+        "2024": {
+          "cases": 317,
+          "deaths": 0,
+          "population": 1526304,
+          "attackRate": 20.8,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 298,
+          "deaths": 0,
+          "population": 1548605,
+          "attackRate": 19.2,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 103,
+          "deaths": 0,
+          "population": 1571231,
+          "attackRate": 6.6,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tiruchirappalli",
+      "metrics": {
+        "2024": {
+          "cases": 1740,
+          "deaths": 0,
+          "population": 3286867,
+          "attackRate": 52.9,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 439,
+          "deaths": 0,
+          "population": 3334891,
+          "attackRate": 13.2,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 252,
+          "deaths": 0,
+          "population": 3383617,
+          "attackRate": 7.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tirunelveli",
+      "metrics": {
+        "2024": {
+          "cases": 786,
+          "deaths": 0,
+          "population": 2010519,
+          "attackRate": 39.1,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 325,
+          "deaths": 1,
+          "population": 2039895,
+          "attackRate": 15.9,
+          "cfr": 0.31
+        },
+        "2026": {
+          "cases": 86,
+          "deaths": 0,
+          "population": 2069700,
+          "attackRate": 4.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tirupathur",
+      "metrics": {
+        "2024": {
+          "cases": 617,
+          "deaths": 2,
+          "population": 1342761,
+          "attackRate": 46.0,
+          "cfr": 0.32
+        },
+        "2025": {
+          "cases": 221,
+          "deaths": 0,
+          "population": 1362380,
+          "attackRate": 16.2,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 34,
+          "deaths": 0,
+          "population": 1382286,
+          "attackRate": 2.5,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tiruppur",
+      "metrics": {
+        "2024": {
+          "cases": 2049,
+          "deaths": 0,
+          "population": 2993440,
+          "attackRate": 68.4,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 466,
+          "deaths": 1,
+          "population": 3037177,
+          "attackRate": 15.3,
+          "cfr": 0.21
+        },
+        "2026": {
+          "cases": 206,
+          "deaths": 0,
+          "population": 3081553,
+          "attackRate": 6.7,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tiruvannamalai",
+      "metrics": {
+        "2024": {
+          "cases": 937,
+          "deaths": 0,
+          "population": 2976535,
+          "attackRate": 31.5,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 799,
+          "deaths": 0,
+          "population": 3020025,
+          "attackRate": 26.5,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 196,
+          "deaths": 0,
+          "population": 3064150,
+          "attackRate": 6.4,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Tuticorin",
+      "metrics": {
+        "2024": {
+          "cases": 669,
+          "deaths": 0,
+          "population": 2113158,
+          "attackRate": 31.7,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 262,
+          "deaths": 1,
+          "population": 2144034,
+          "attackRate": 12.2,
+          "cfr": 0.38
+        },
+        "2026": {
+          "cases": 85,
+          "deaths": 0,
+          "population": 2175360,
+          "attackRate": 3.9,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Vellore",
+      "metrics": {
+        "2024": {
+          "cases": 1220,
+          "deaths": 0,
+          "population": 1948936,
+          "attackRate": 62.6,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 559,
+          "deaths": 2,
+          "population": 1977412,
+          "attackRate": 28.3,
+          "cfr": 0.36
+        },
+        "2026": {
+          "cases": 85,
+          "deaths": 0,
+          "population": 2006304,
+          "attackRate": 4.2,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Villupuram",
+      "metrics": {
+        "2024": {
+          "cases": 1126,
+          "deaths": 0,
+          "population": 2527338,
+          "attackRate": 44.6,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 788,
+          "deaths": 0,
+          "population": 2564264,
+          "attackRate": 30.7,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 212,
+          "deaths": 0,
+          "population": 2601731,
+          "attackRate": 8.1,
+          "cfr": 0.0
+        }
+      }
+    },
+    {
+      "district": "Virudhunagar",
+      "metrics": {
+        "2024": {
+          "cases": 542,
+          "deaths": 0,
+          "population": 2345002,
+          "attackRate": 23.1,
+          "cfr": 0.0
+        },
+        "2025": {
+          "cases": 192,
+          "deaths": 0,
+          "population": 2379265,
+          "attackRate": 8.1,
+          "cfr": 0.0
+        },
+        "2026": {
+          "cases": 81,
+          "deaths": 0,
+          "population": 2414028,
+          "attackRate": 3.4,
+          "cfr": 0.0
+        }
+      }
+    }
+  ],
+  "stateTotals": {
+    "2024": {
+      "cases": 46927,
+      "deaths": 13,
+      "population": 86781983,
+      "attackRate": 54.1,
+      "cfr": 0.03
+    },
+    "2025": {
+      "cases": 25521,
+      "deaths": 12,
+      "population": 88049949,
+      "attackRate": 29.0,
+      "cfr": 0.05
+    },
+    "2026": {
+      "cases": 7374,
+      "deaths": 2,
+      "population": 89336444,
+      "attackRate": 8.3,
+      "cfr": 0.03
+    }
+  },
+  "monthly": {
+    "2024": {
+      "Ariyalur": {
+        "cases": [
+          149,
+          78,
+          75,
+          43,
+          25,
+          34,
+          64,
+          79,
+          78,
+          63,
+          117,
+          87
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Chengalpattu": {
+        "cases": [
+          123,
+          59,
+          59,
+          24,
+          23,
+          58,
+          87,
+          135,
+          140,
+          162,
+          228,
+          122
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "Chennai": {
+        "cases": [
+          614,
+          421,
+          286,
+          184,
+          138,
+          239,
+          742,
+          937,
+          889,
+          794,
+          1111,
+          829
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "Coimbatore": {
+        "cases": [
+          1426,
+          1138,
+          672,
+          218,
+          144,
+          249,
+          480,
+          577,
+          468,
+          251,
+          370,
+          456
+        ],
+        "deaths": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Cuddalore": {
+        "cases": [
+          251,
+          189,
+          123,
+          107,
+          86,
+          73,
+          123,
+          174,
+          216,
+          225,
+          274,
+          209
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dharmapuri": {
+        "cases": [
+          13,
+          21,
+          16,
+          8,
+          9,
+          13,
+          37,
+          78,
+          143,
+          97,
+          35,
+          22
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dindigul": {
+        "cases": [
+          123,
+          83,
+          44,
+          31,
+          17,
+          26,
+          52,
+          49,
+          40,
+          28,
+          37,
+          42
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Erode": {
+        "cases": [
+          161,
+          85,
+          57,
+          29,
+          16,
+          31,
+          45,
+          74,
+          91,
+          69,
+          57,
+          105
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "Kallakurichi": {
+        "cases": [
+          63,
+          43,
+          29,
+          19,
+          14,
+          14,
+          39,
+          43,
+          55,
+          33,
+          48,
+          27
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanchipuram": {
+        "cases": [
+          108,
+          78,
+          59,
+          28,
+          29,
+          30,
+          74,
+          155,
+          117,
+          97,
+          118,
+          73
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanniyakumari": {
+        "cases": [
+          134,
+          55,
+          36,
+          13,
+          19,
+          35,
+          93,
+          74,
+          66,
+          49,
+          78,
+          56
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Karur": {
+        "cases": [
+          60,
+          42,
+          35,
+          14,
+          5,
+          3,
+          9,
+          20,
+          23,
+          13,
+          12,
+          9
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Krishnagiri": {
+        "cases": [
+          199,
+          153,
+          90,
+          79,
+          85,
+          175,
+          516,
+          440,
+          470,
+          233,
+          142,
+          82
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Madurai": {
+        "cases": [
+          500,
+          193,
+          88,
+          34,
+          22,
+          22,
+          33,
+          39,
+          41,
+          36,
+          46,
+          74
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Mayiladuthurai": {
+        "cases": [
+          16,
+          16,
+          15,
+          10,
+          10,
+          8,
+          18,
+          45,
+          67,
+          70,
+          73,
+          49
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Nagapattinam": {
+        "cases": [
+          12,
+          15,
+          16,
+          14,
+          7,
+          11,
+          33,
+          43,
+          47,
+          32,
+          8,
+          17
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Namakkal": {
+        "cases": [
+          251,
+          136,
+          77,
+          25,
+          11,
+          27,
+          53,
+          54,
+          96,
+          60,
+          64,
+          66
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Perambalur": {
+        "cases": [
+          106,
+          61,
+          57,
+          17,
+          8,
+          9,
+          14,
+          20,
+          28,
+          27,
+          44,
+          75
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "Pudukkottai": {
+        "cases": [
+          195,
+          97,
+          90,
+          33,
+          14,
+          21,
+          40,
+          46,
+          79,
+          49,
+          91,
+          92
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ramanathapuram": {
+        "cases": [
+          198,
+          125,
+          61,
+          26,
+          6,
+          11,
+          30,
+          29,
+          42,
+          30,
+          69,
+          37
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ranipet": {
+        "cases": [
+          53,
+          39,
+          37,
+          17,
+          12,
+          5,
+          14,
+          42,
+          35,
+          32,
+          55,
+          41
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "Salem": {
+        "cases": [
+          147,
+          87,
+          65,
+          35,
+          12,
+          29,
+          49,
+          87,
+          185,
+          119,
+          103,
+          52
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Sivaganga": {
+        "cases": [
+          177,
+          59,
+          25,
+          17,
+          17,
+          11,
+          18,
+          25,
+          24,
+          15,
+          14,
+          22
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tenkasi": {
+        "cases": [
+          183,
+          146,
+          40,
+          21,
+          10,
+          13,
+          26,
+          24,
+          20,
+          27,
+          43,
+          72
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thanjavur": {
+        "cases": [
+          167,
+          131,
+          110,
+          73,
+          73,
+          46,
+          69,
+          92,
+          122,
+          109,
+          122,
+          138
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1
+        ]
+      },
+      "Theni": {
+        "cases": [
+          155,
+          196,
+          182,
+          58,
+          26,
+          26,
+          48,
+          29,
+          40,
+          31,
+          60,
+          45
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "The Nilgiris": {
+        "cases": [
+          71,
+          41,
+          34,
+          38,
+          38,
+          138,
+          119,
+          44,
+          26,
+          21,
+          15,
+          14
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvallur": {
+        "cases": [
+          215,
+          138,
+          86,
+          52,
+          51,
+          43,
+          143,
+          279,
+          338,
+          365,
+          401,
+          299
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvarur": {
+        "cases": [
+          46,
+          21,
+          23,
+          14,
+          10,
+          17,
+          31,
+          36,
+          34,
+          19,
+          28,
+          38
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruchirappalli": {
+        "cases": [
+          432,
+          214,
+          161,
+          82,
+          27,
+          55,
+          158,
+          157,
+          146,
+          84,
+          124,
+          100
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirunelveli": {
+        "cases": [
+          310,
+          187,
+          49,
+          21,
+          5,
+          6,
+          11,
+          27,
+          12,
+          19,
+          62,
+          77
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirupathur": {
+        "cases": [
+          57,
+          33,
+          20,
+          11,
+          8,
+          13,
+          82,
+          123,
+          121,
+          100,
+          28,
+          21
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          1,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruppur": {
+        "cases": [
+          486,
+          378,
+          234,
+          67,
+          21,
+          37,
+          86,
+          134,
+          140,
+          131,
+          161,
+          174
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruvannamalai": {
+        "cases": [
+          124,
+          60,
+          58,
+          39,
+          32,
+          29,
+          56,
+          95,
+          112,
+          115,
+          108,
+          109
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tuticorin": {
+        "cases": [
+          194,
+          124,
+          70,
+          26,
+          17,
+          25,
+          29,
+          31,
+          42,
+          27,
+          42,
+          42
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Vellore": {
+        "cases": [
+          195,
+          140,
+          70,
+          57,
+          31,
+          37,
+          96,
+          149,
+          130,
+          120,
+          111,
+          84
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Villupuram": {
+        "cases": [
+          156,
+          81,
+          63,
+          44,
+          35,
+          38,
+          71,
+          104,
+          125,
+          138,
+          141,
+          130
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Virudhunagar": {
+        "cases": [
+          168,
+          144,
+          65,
+          16,
+          6,
+          10,
+          8,
+          13,
+          19,
+          19,
+          41,
+          33
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "2025": {
+      "Ariyalur": {
+        "cases": [
+          81,
+          47,
+          35,
+          30,
+          18,
+          33,
+          38,
+          36,
+          58,
+          69,
+          49,
+          47
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Chengalpattu": {
+        "cases": [
+          84,
+          63,
+          40,
+          52,
+          26,
+          49,
+          78,
+          49,
+          101,
+          114,
+          192,
+          135
+        ],
+        "deaths": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Chennai": {
+        "cases": [
+          628,
+          416,
+          266,
+          192,
+          140,
+          277,
+          480,
+          522,
+          718,
+          907,
+          1052,
+          752
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          1,
+          0
+        ]
+      },
+      "Coimbatore": {
+        "cases": [
+          254,
+          134,
+          81,
+          70,
+          117,
+          150,
+          212,
+          125,
+          125,
+          147,
+          236,
+          260
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Cuddalore": {
+        "cases": [
+          196,
+          140,
+          95,
+          73,
+          97,
+          110,
+          132,
+          124,
+          82,
+          183,
+          200,
+          102
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dharmapuri": {
+        "cases": [
+          21,
+          15,
+          12,
+          5,
+          4,
+          6,
+          4,
+          13,
+          26,
+          20,
+          19,
+          10
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dindigul": {
+        "cases": [
+          22,
+          16,
+          12,
+          7,
+          8,
+          10,
+          9,
+          12,
+          13,
+          16,
+          10,
+          12
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Erode": {
+        "cases": [
+          65,
+          45,
+          27,
+          38,
+          50,
+          40,
+          35,
+          50,
+          47,
+          48,
+          67,
+          35
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "Kallakurichi": {
+        "cases": [
+          17,
+          14,
+          13,
+          12,
+          5,
+          10,
+          11,
+          11,
+          21,
+          42,
+          66,
+          51
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanchipuram": {
+        "cases": [
+          95,
+          63,
+          48,
+          31,
+          28,
+          31,
+          55,
+          60,
+          98,
+          108,
+          164,
+          127
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanniyakumari": {
+        "cases": [
+          59,
+          21,
+          19,
+          36,
+          44,
+          38,
+          66,
+          56,
+          40,
+          37,
+          41,
+          50
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Karur": {
+        "cases": [
+          7,
+          5,
+          9,
+          4,
+          3,
+          2,
+          4,
+          6,
+          8,
+          13,
+          13,
+          17
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Krishnagiri": {
+        "cases": [
+          49,
+          48,
+          49,
+          20,
+          21,
+          38,
+          30,
+          48,
+          80,
+          47,
+          57,
+          32
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Madurai": {
+        "cases": [
+          39,
+          26,
+          18,
+          7,
+          14,
+          14,
+          13,
+          10,
+          20,
+          27,
+          29,
+          32
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Mayiladuthurai": {
+        "cases": [
+          34,
+          19,
+          25,
+          27,
+          36,
+          46,
+          44,
+          20,
+          22,
+          38,
+          34,
+          19
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Nagapattinam": {
+        "cases": [
+          15,
+          8,
+          10,
+          7,
+          9,
+          7,
+          4,
+          6,
+          24,
+          40,
+          34,
+          26
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Namakkal": {
+        "cases": [
+          40,
+          25,
+          15,
+          15,
+          8,
+          11,
+          27,
+          17,
+          35,
+          40,
+          52,
+          41
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Perambalur": {
+        "cases": [
+          46,
+          20,
+          22,
+          5,
+          10,
+          3,
+          6,
+          15,
+          16,
+          45,
+          29,
+          18
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Pudukkottai": {
+        "cases": [
+          55,
+          29,
+          29,
+          23,
+          21,
+          10,
+          18,
+          20,
+          51,
+          88,
+          109,
+          78
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ramanathapuram": {
+        "cases": [
+          15,
+          21,
+          13,
+          15,
+          11,
+          10,
+          9,
+          9,
+          24,
+          40,
+          51,
+          53
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ranipet": {
+        "cases": [
+          24,
+          31,
+          30,
+          17,
+          12,
+          15,
+          13,
+          9,
+          26,
+          66,
+          51,
+          39
+        ],
+        "deaths": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Salem": {
+        "cases": [
+          28,
+          19,
+          22,
+          12,
+          5,
+          10,
+          25,
+          37,
+          48,
+          49,
+          89,
+          55
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Sivaganga": {
+        "cases": [
+          18,
+          9,
+          6,
+          3,
+          4,
+          1,
+          8,
+          5,
+          13,
+          18,
+          34,
+          21
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tenkasi": {
+        "cases": [
+          41,
+          31,
+          16,
+          11,
+          14,
+          5,
+          18,
+          10,
+          32,
+          15,
+          21,
+          24
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thanjavur": {
+        "cases": [
+          102,
+          53,
+          55,
+          48,
+          61,
+          64,
+          64,
+          42,
+          75,
+          104,
+          93,
+          80
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "The Nilgiris": {
+        "cases": [
+          8,
+          4,
+          4,
+          3,
+          8,
+          14,
+          14,
+          4,
+          8,
+          7,
+          7,
+          10
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Theni": {
+        "cases": [
+          30,
+          22,
+          30,
+          20,
+          36,
+          37,
+          50,
+          30,
+          43,
+          18,
+          22,
+          17
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvallur": {
+        "cases": [
+          179,
+          105,
+          105,
+          54,
+          41,
+          81,
+          136,
+          174,
+          277,
+          413,
+          355,
+          223
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvarur": {
+        "cases": [
+          14,
+          15,
+          19,
+          16,
+          17,
+          10,
+          21,
+          32,
+          43,
+          43,
+          51,
+          17
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruchirappalli": {
+        "cases": [
+          71,
+          29,
+          21,
+          11,
+          13,
+          14,
+          24,
+          27,
+          46,
+          80,
+          68,
+          35
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirunelveli": {
+        "cases": [
+          86,
+          17,
+          10,
+          34,
+          18,
+          17,
+          38,
+          24,
+          24,
+          7,
+          32,
+          18
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirupathur": {
+        "cases": [
+          9,
+          27,
+          13,
+          10,
+          13,
+          8,
+          11,
+          21,
+          35,
+          38,
+          22,
+          14
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruppur": {
+        "cases": [
+          100,
+          53,
+          40,
+          14,
+          24,
+          33,
+          31,
+          25,
+          21,
+          36,
+          34,
+          55
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0
+        ]
+      },
+      "Tiruvannamalai": {
+        "cases": [
+          89,
+          42,
+          41,
+          40,
+          28,
+          34,
+          56,
+          61,
+          107,
+          105,
+          120,
+          76
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tuticorin": {
+        "cases": [
+          31,
+          30,
+          24,
+          21,
+          20,
+          5,
+          14,
+          25,
+          36,
+          17,
+          24,
+          15
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Vellore": {
+        "cases": [
+          67,
+          36,
+          25,
+          20,
+          18,
+          19,
+          34,
+          41,
+          62,
+          83,
+          100,
+          54
+        ],
+        "deaths": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          1,
+          0,
+          0
+        ]
+      },
+      "Villupuram": {
+        "cases": [
+          85,
+          62,
+          38,
+          16,
+          22,
+          33,
+          37,
+          47,
+          89,
+          96,
+          158,
+          105
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Virudhunagar": {
+        "cases": [
+          35,
+          13,
+          11,
+          20,
+          7,
+          19,
+          11,
+          9,
+          10,
+          23,
+          17,
+          17
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    },
+    "2026": {
+      "Ariyalur": {
+        "cases": [
+          39,
+          30,
+          23,
+          27,
+          23,
+          17,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Chengalpattu": {
+        "cases": [
+          68,
+          73,
+          45,
+          30,
+          25,
+          19,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Chennai": {
+        "cases": [
+          401,
+          273,
+          227,
+          177,
+          225,
+          130,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Coimbatore": {
+        "cases": [
+          243,
+          146,
+          138,
+          153,
+          141,
+          109,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Cuddalore": {
+        "cases": [
+          69,
+          76,
+          76,
+          75,
+          65,
+          72,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dharmapuri": {
+        "cases": [
+          5,
+          1,
+          13,
+          1,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Dindigul": {
+        "cases": [
+          19,
+          9,
+          16,
+          15,
+          8,
+          8,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Erode": {
+        "cases": [
+          36,
+          33,
+          26,
+          26,
+          29,
+          25,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kallakurichi": {
+        "cases": [
+          14,
+          15,
+          9,
+          9,
+          6,
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanchipuram": {
+        "cases": [
+          50,
+          48,
+          53,
+          40,
+          29,
+          29,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Kanniyakumari": {
+        "cases": [
+          40,
+          18,
+          28,
+          38,
+          41,
+          54,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Karur": {
+        "cases": [
+          9,
+          9,
+          7,
+          26,
+          16,
+          16,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Krishnagiri": {
+        "cases": [
+          11,
+          13,
+          16,
+          22,
+          15,
+          17,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Madurai": {
+        "cases": [
+          30,
+          20,
+          17,
+          18,
+          15,
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Mayiladuthurai": {
+        "cases": [
+          4,
+          6,
+          26,
+          9,
+          6,
+          8,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Nagapattinam": {
+        "cases": [
+          15,
+          5,
+          13,
+          11,
+          5,
+          3,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Namakkal": {
+        "cases": [
+          30,
+          22,
+          9,
+          8,
+          7,
+          7,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Perambalur": {
+        "cases": [
+          18,
+          11,
+          5,
+          5,
+          10,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Pudukkottai": {
+        "cases": [
+          35,
+          35,
+          28,
+          40,
+          29,
+          28,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ramanathapuram": {
+        "cases": [
+          41,
+          48,
+          29,
+          30,
+          25,
+          15,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Ranipet": {
+        "cases": [
+          22,
+          17,
+          13,
+          7,
+          7,
+          7,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Salem": {
+        "cases": [
+          27,
+          12,
+          23,
+          25,
+          21,
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Sivaganga": {
+        "cases": [
+          12,
+          6,
+          8,
+          12,
+          12,
+          10,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tenkasi": {
+        "cases": [
+          35,
+          31,
+          30,
+          27,
+          14,
+          10,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thanjavur": {
+        "cases": [
+          58,
+          64,
+          61,
+          30,
+          23,
+          14,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "The Nilgiris": {
+        "cases": [
+          6,
+          2,
+          9,
+          11,
+          8,
+          14,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Theni": {
+        "cases": [
+          27,
+          19,
+          23,
+          15,
+          18,
+          15,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvallur": {
+        "cases": [
+          84,
+          50,
+          49,
+          36,
+          46,
+          20,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Thiruvarur": {
+        "cases": [
+          16,
+          18,
+          26,
+          14,
+          17,
+          12,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruchirappalli": {
+        "cases": [
+          30,
+          28,
+          27,
+          75,
+          40,
+          52,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirunelveli": {
+        "cases": [
+          21,
+          21,
+          14,
+          18,
+          8,
+          4,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tirupathur": {
+        "cases": [
+          9,
+          0,
+          9,
+          5,
+          6,
+          5,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruppur": {
+        "cases": [
+          39,
+          42,
+          36,
+          45,
+          23,
+          21,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tiruvannamalai": {
+        "cases": [
+          51,
+          38,
+          25,
+          37,
+          31,
+          14,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Tuticorin": {
+        "cases": [
+          21,
+          17,
+          11,
+          18,
+          9,
+          9,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Vellore": {
+        "cases": [
+          21,
+          18,
+          12,
+          14,
+          14,
+          6,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Villupuram": {
+        "cases": [
+          53,
+          34,
+          28,
+          38,
+          29,
+          30,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "Virudhunagar": {
+        "cases": [
+          13,
+          14,
+          20,
+          14,
+          13,
+          7,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "deaths": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      }
+    }
+  }
+}
