@@ -3,7 +3,7 @@ import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceArea, ReferenceDot, Label,
 } from 'recharts'
-import { getMonthlyCases, getMonthlyMetric } from '../dataService'
+import { getMonthlyCases, getMonthlyMetric, isPartial } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
 import { YEARS, type Metric } from '../types'
 
@@ -13,6 +13,9 @@ const SERIES = [
   { year: 2025, color: '#1f5fa6', width: 3, dash: undefined },
   { year: 2026, color: '#c0392b', width: 3, dash: undefined },
 ] as const
+
+// Latest non-partial year — basis for the peak marker and high-season band.
+const LATEST_FULL_YEAR = [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[0]
 
 const Y_LABEL: Record<Metric, string> = {
   cases: 'Reported cases',
@@ -30,7 +33,7 @@ interface CurveTooltipProps {
 export function EpidemicCurve({ selected, metric }: { selected: string | null; metric: Metric }) {
   const fmtVal = METRIC_CONFIG[metric].format
 
-  const { data, peak } = useMemo(() => {
+  const { data, peak, season } = useMemo(() => {
     // Reported extent comes from cases (a 0-CFR month is real, not "no data").
     const byYear = YEARS.map((y) => {
       const cases = getMonthlyCases(y, selected)
@@ -45,12 +48,30 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
       byYear.forEach(({ y, series }) => (row[y] = series[i]))
       return row
     })
-    // Peak of the most recent full year (2025) for annotation.
-    const ref = byYear.find((b) => b.y === 2025)?.series ?? []
+
+    // Monthly profile of the latest full year (2025) drives both the peak
+    // marker and the dynamic high-season band — so the marker sits on a real
+    // point and the band reflects the metric actually shown.
+    const ref = byYear.find((b) => b.y === LATEST_FULL_YEAR)?.series ?? []
+    const prof = MONTHS.map((_, i) => ref[i] ?? 0)
     let pIdx = 0
-    ref.forEach((v, i) => { if ((v ?? 0) > (ref[pIdx] ?? 0)) pIdx = i })
-    const peakVal = ref[pIdx]
-    return { data: rows, peak: peakVal ? { month: MONTHS[pIdx], value: peakVal } : null }
+    prof.forEach((v, i) => { if (v > prof[pIdx]) pIdx = i })
+    const peakVal = prof[pIdx]
+
+    // High-season band: contiguous months around the peak at or above half-peak.
+    let s = pIdx
+    let e = pIdx
+    if (peakVal > 0) {
+      const thr = peakVal * 0.5
+      while (s > 0 && prof[s - 1] >= thr) s--
+      while (e < 11 && prof[e + 1] >= thr) e++
+    }
+
+    return {
+      data: rows,
+      peak: peakVal > 0 ? { month: MONTHS[pIdx], value: peakVal } : null,
+      season: peakVal > 0 ? { start: MONTHS[s], end: MONTHS[e] } : null,
+    }
   }, [selected, metric])
 
   const axisFmt = (v: number) => {
@@ -94,10 +115,12 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
               </linearGradient>
             </defs>
 
-            {/* Typical peak season band */}
-            <ReferenceArea x1="Sep" x2="Nov" fill="#c77d12" fillOpacity={0.07} stroke="none">
-              <Label value="Typical peak" position="insideTop" fontSize={11} fill="#9a6a10" />
-            </ReferenceArea>
+            {/* Dynamic high-season band (from full-year averages) */}
+            {season && (
+              <ReferenceArea x1={season.start} x2={season.end} fill="#c77d12" fillOpacity={0.08} stroke="none">
+                <Label value="Peak season" position="insideTop" fontSize={11} fill="#9a6a10" />
+              </ReferenceArea>
+            )}
 
             <CartesianGrid stroke="#e6ecf3" vertical={false} />
             <XAxis
@@ -162,7 +185,9 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
             </span>
           ))}
         </div>
-        <span className="text-[0.76rem] text-ink-faint">Shaded band = typical Sep–Nov peak season</span>
+        <span className="text-[0.76rem] text-ink-faint">
+          {season ? `Shaded band = peak season (${season.start}–${season.end})` : 'No peak season'}
+        </span>
       </div>
     </div>
   )
