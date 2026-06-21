@@ -1,0 +1,48 @@
+{
+ "model": "negative binomial",
+ "lag_months": 1,
+ "n": 1102,
+ "ranked": [
+  "rain",
+  "hum",
+  "temp"
+ ],
+ "factors": [
+  {
+   "key": "rain",
+   "label": "Rainfall",
+   "irr": 1.019,
+   "ci": [
+    1.014,
+    1.024
+   ],
+   "p": 0.0,
+   "importance": 0.194,
+   "significant": true
+  },
+  {
+   "key": "temp",
+   "label": "Temperature",
+   "irr": 0.987,
+   "ci": [
+    0.962,
+    1.014
+   ],
+   "p": 0.3452,
+   "importance": 0.041,
+   "significant": false
+  },
+  {
+   "key": "hum",
+   "label": "Humidity",
+   "irr": 1.013,
+   "ci": [
+    1.005,
+    1.022
+   ],
+   "p": 0.0027,
+   "importance": 0.12,
+   "significant": true
+  }
+ ]
+}

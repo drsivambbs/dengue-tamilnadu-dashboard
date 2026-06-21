@@ -88,3 +88,28 @@ print(f"  With rainfall, temperature and humidity considered together, "
 print(f"  Each step shown changes expected cases toward {direction} dengue about "
       f"{abs(irr_top - 1) * 100:.0f}% (1 month later), holding the other two constant.")
 print("  Note: ecological, correlational analysis — not proof of cause.")
+
+# ---- export results for the dashboard ----
+import json
+KEY = {"rain10_l": "rain", "temp_c_l": "temp", "humidity_pct_l": "hum"}
+factors_out = []
+for k, label in LABELS.items():
+    factors_out.append({
+        "key": KEY[k],
+        "label": label.split(" (")[0],
+        "irr": round(float(np.exp(nb.params[k])), 3),
+        "ci": [round(float(np.exp(ci.loc[k, 0])), 3), round(float(np.exp(ci.loc[k, 1])), 3)],
+        "p": round(float(nb.pvalues[k]), 4),
+        "importance": round(float(importance[k]), 3),
+        "significant": bool(nb.pvalues[k] < 0.05),
+    })
+out = {
+    "model": "negative binomial",
+    "lag_months": LAG,
+    "n": int(len(df)),
+    "ranked": [KEY[k] for k in ranked],
+    "factors": factors_out,
+}
+out_path = ROOT / "dashboard" / "src" / "data" / "climate_model.json"
+out_path.write_text(json.dumps(out, indent=1), encoding="utf-8")
+print("\nWrote", out_path)
