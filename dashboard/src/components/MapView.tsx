@@ -3,10 +3,11 @@ import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/map
 import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { getYearValues, getRecord } from '../dataService'
+import { getYearValues, getRecord, listDistricts } from '../dataService'
 import { colorExpression, METRIC_CONFIG } from '../metrics'
 import { classify } from '../classify'
 import { MapLegend } from './MapLegend'
+import { DistrictSearch } from './DistrictSearch'
 import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
 // Free, no-API-key light basemap (CARTO Positron) — calm, muted, lets data lead.
@@ -76,6 +77,12 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
+  const districts = useMemo(() => listDistricts().slice().sort(), [])
+
+  const resetView = useCallback(() => {
+    onSelect(null)
+    mapRef.current?.fitBounds(TN_BOUNDS, { padding: 20, duration: 700 })
+  }, [onSelect])
 
   // Data-driven class breaks: recomputed from the actual values for this
   // metric + year using the chosen classification method.
@@ -144,6 +151,25 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
 
   return (
     <div className="relative h-full w-full">
+        {/* Top-left controls: district search + reset/home */}
+        <div className="absolute left-3 top-3 z-10 flex items-start gap-2">
+          <div className="w-60 rounded-lg shadow-md">
+            <DistrictSearch districts={districts} selected={selected} onSelect={onSelect} />
+          </div>
+          <button
+            onClick={resetView}
+            aria-label="Reset map view"
+            title="Reset view"
+            className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-3 text-[0.88rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+              <path d="M3 11l9-8 9 8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Reset
+          </button>
+        </div>
+
         <MapLegend metric={metric} breaks={breaks} method={classMethod} />
         <MapGL
           ref={mapRef}

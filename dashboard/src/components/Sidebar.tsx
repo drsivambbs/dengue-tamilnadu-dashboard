@@ -1,27 +1,19 @@
-import { useMemo } from 'react'
 import { Panel } from './Panel'
-import { DistrictSearch } from './DistrictSearch'
-import { METRIC_CONFIG } from '../metrics'
-import { listDistricts, getRecord } from '../dataService'
 import { CLASS_METHODS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
 
 interface Props {
   year: Year
   metric: Metric
-  selected: string | null
   open: boolean
   classMethod: ClassMethod
   onToggle: () => void
   onClassMethod: (m: ClassMethod) => void
   onYear: (y: Year) => void
   onMetric: (m: Metric) => void
-  onSelect: (d: string | null) => void
 }
 
 /** The "workbench" — the persistent control bench on the left. */
-export function Sidebar({ year, metric, selected, open, classMethod, onToggle, onClassMethod, onYear, onMetric, onSelect }: Props) {
-  const districts = useMemo(() => listDistricts().slice().sort(), [])
-
+export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMethod, onYear, onMetric }: Props) {
   if (!open) {
     return (
       <aside className="flex w-12 shrink-0 flex-col items-center border-r border-line-strong bg-surface py-3" aria-label="Dashboard controls (collapsed)">
@@ -155,14 +147,6 @@ export function Sidebar({ year, metric, selected, open, classMethod, onToggle, o
         </div>
       </Panel>
 
-      {/* FIND DISTRICT -------------------------------------------------- */}
-      <Panel title="Find district">
-        <DistrictSearch districts={districts} selected={selected} onSelect={onSelect} />
-        {selected && (
-          <SelectedReadout district={selected} year={year} metric={metric} onClear={() => onSelect(null)} />
-        )}
-      </Panel>
-
       {/* EXPORT --------------------------------------------------------- */}
       <Panel title="Export" defaultOpen={false}>
         <button
@@ -217,48 +201,3 @@ function LayerRow({
   )
 }
 
-function SelectedReadout({
-  district,
-  year,
-  metric,
-  onClear,
-}: {
-  district: string
-  year: Year
-  metric: Metric
-  onClear: () => void
-}) {
-  const rec = getRecord(district, year)
-  if (!rec) return null
-  const fmt = METRIC_CONFIG[metric].format
-  const label = METRICS.find((m) => m.id === metric)?.label ?? ''
-  return (
-    <div className="mt-3 rounded-lg border border-brand/40 bg-brand-soft/60 p-3.5">
-      <div className="mb-2 flex items-start justify-between gap-2">
-        <p className="font-serif text-[1.02rem] font-600 leading-tight text-ink">{district}</p>
-        <button
-          onClick={onClear}
-          className="rounded-md px-2 py-0.5 text-[0.78rem] font-600 text-brand-strong hover:bg-surface"
-        >
-          Clear
-        </button>
-      </div>
-      <dl className="space-y-1 text-[0.85rem]">
-        <ReadRow label={label} value={fmt(rec[metric])} highlight />
-        <ReadRow label="Cases" value={rec.cases.toLocaleString('en-IN')} />
-        <ReadRow label="Deaths" value={rec.deaths.toLocaleString('en-IN')} />
-        <ReadRow label="Attack rate" value={`${rec.attackRate.toFixed(1)} /100k`} />
-        <ReadRow label="CFR" value={`${rec.cfr.toFixed(2)}%`} />
-      </dl>
-    </div>
-  )
-}
-
-function ReadRow({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
-  return (
-    <div className="flex items-baseline justify-between gap-3">
-      <dt className="text-ink-soft">{label}</dt>
-      <dd className={`font-mono font-600 ${highlight ? 'text-brand-strong' : 'text-ink'}`}>{value}</dd>
-    </div>
-  )
-}

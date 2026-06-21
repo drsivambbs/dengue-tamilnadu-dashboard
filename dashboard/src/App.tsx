@@ -21,14 +21,12 @@ function App() {
         <Sidebar
           year={year}
           metric={metric}
-          selected={selected}
           open={sidebarOpen}
           onToggle={() => setSidebarOpen((v) => !v)}
           classMethod={classMethod}
           onClassMethod={setClassMethod}
           onYear={setYear}
           onMetric={setMetric}
-          onSelect={setSelected}
         />
         <main className="flex min-w-0 flex-1 flex-col p-4">
           <CanvasPanel
