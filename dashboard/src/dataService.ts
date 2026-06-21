@@ -14,6 +14,7 @@ const db = data as unknown as DengueData
 interface WeatherYear {
   rain: (number | null)[]
   temp: (number | null)[]
+  hum?: (number | null)[]
 }
 const weather = weatherData as unknown as {
   meta: Record<string, unknown>

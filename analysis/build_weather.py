@@ -29,6 +29,7 @@ def fetch(lat, lon):
         "start_date": START,
         "end_date": END,
         "daily": "precipitation_sum,temperature_2m_mean",
+        "hourly": "relative_humidity_2m",
         "timezone": "Asia/Kolkata",
     })
     req = urllib.request.Request(f"{ARCHIVE}?{q}", headers={"User-Agent": "Mozilla/5.0"})
@@ -43,15 +44,13 @@ def fetch(lat, lon):
     return None
 
 
-def monthly(daily):
-    """Aggregate daily arrays into per-year [12] rain-sum and temp-mean."""
-    times = daily["time"]
-    precip = daily["precipitation_sum"]
-    temp = daily["temperature_2m_mean"]
+def monthly(data):
+    """Aggregate into per-year [12]: rain-sum, temp-mean, humidity-mean."""
+    daily = data["daily"]
     rain = {y: [None] * 12 for y in YEARS}
     tsum = {y: [0.0] * 12 for y in YEARS}
     tcnt = {y: [0] * 12 for y in YEARS}
-    for t, p, tm in zip(times, precip, temp):
+    for t, p, tm in zip(daily["time"], daily["precipitation_sum"], daily["temperature_2m_mean"]):
         y = int(t[0:4]); m = int(t[5:7]) - 1
         if y not in rain:
             continue
@@ -59,11 +58,21 @@ def monthly(daily):
             rain[y][m] = (rain[y][m] or 0.0) + p
         if tm is not None:
             tsum[y][m] += tm; tcnt[y][m] += 1
+    # Humidity comes from hourly relative_humidity_2m -> monthly mean.
+    hsum = {y: [0.0] * 12 for y in YEARS}
+    hcnt = {y: [0] * 12 for y in YEARS}
+    hourly = data.get("hourly", {})
+    for t, h in zip(hourly.get("time", []), hourly.get("relative_humidity_2m", [])):
+        y = int(t[0:4]); m = int(t[5:7]) - 1
+        if y in hsum and h is not None:
+            hsum[y][m] += h; hcnt[y][m] += 1
     out = {}
     for y in YEARS:
-        temps = [round(tsum[y][m] / tcnt[y][m], 1) if tcnt[y][m] else None for m in range(12)]
-        rains = [round(rain[y][m], 1) if rain[y][m] is not None else None for m in range(12)]
-        out[str(y)] = {"rain": rains, "temp": temps}
+        out[str(y)] = {
+            "rain": [round(rain[y][m], 1) if rain[y][m] is not None else None for m in range(12)],
+            "temp": [round(tsum[y][m] / tcnt[y][m], 1) if tcnt[y][m] else None for m in range(12)],
+            "hum": [round(hsum[y][m] / hcnt[y][m], 1) if hcnt[y][m] else None for m in range(12)],
+        }
     return out
 
 
@@ -77,25 +86,25 @@ for i, row in gdf.iterrows():
     lat, lon = cent[i].y, cent[i].x
     print(f"  {name:18s} ({lat:.3f},{lon:.3f}) ...", flush=True)
     data = fetch(lat, lon)
-    districts[name] = monthly(data["daily"])
+    districts[name] = monthly(data)
     time.sleep(0.4)
 
-# State aggregate: mean rainfall + mean temperature across districts per month.
+# State aggregate: mean across districts per month, for each variable.
 state = {}
 for y in YEARS:
-    rains, temps = [], []
+    agg = {"rain": [], "temp": [], "hum": []}
     for m in range(12):
-        rv = [districts[d][str(y)]["rain"][m] for d in districts if districts[d][str(y)]["rain"][m] is not None]
-        tv = [districts[d][str(y)]["temp"][m] for d in districts if districts[d][str(y)]["temp"][m] is not None]
-        rains.append(round(sum(rv) / len(rv), 1) if rv else None)
-        temps.append(round(sum(tv) / len(tv), 1) if tv else None)
-    state[str(y)] = {"rain": rains, "temp": temps}
+        for var in agg:
+            vals = [districts[d][str(y)][var][m] for d in districts if districts[d][str(y)][var][m] is not None]
+            agg[var].append(round(sum(vals) / len(vals), 1) if vals else None)
+    state[str(y)] = agg
 
 out = {
     "meta": {
         "source": "Open-Meteo historical archive (ERA5)",
         "rainfall": "monthly sum of daily precipitation (mm)",
         "temperature": "monthly mean of daily mean 2m temperature (°C)",
+        "humidity": "monthly mean of hourly relative humidity at 2m (%)",
         "years": YEARS,
     },
     "districts": districts,

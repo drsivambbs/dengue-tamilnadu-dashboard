@@ -39,12 +39,12 @@ with open(OUT / "monthly.csv", "w", newline="", encoding="utf-8") as f:
 # 3. weather_monthly
 with open(OUT / "weather_monthly.csv", "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
-    w.writerow(["district", "year", "month", "rain_mm", "temp_c"])
+    w.writerow(["district", "year", "month", "rain_mm", "temp_c", "humidity_pct"])
     for district, yd in weather["districts"].items():
         for y in years:
             wy = yd[str(y)]
             for i in range(12):
-                w.writerow([district, y, i + 1, wy["rain"][i], wy["temp"][i]])
+                w.writerow([district, y, i + 1, wy["rain"][i], wy["temp"][i], wy["hum"][i]])
 
 # 4. district_geo as newline-delimited GeoJSON (one feature per line)
 fc = json.loads((PUBLIC / "tamilnadu_districts.geojson").read_text(encoding="utf-8"))
