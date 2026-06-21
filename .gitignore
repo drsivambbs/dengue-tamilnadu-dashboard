@@ -4,6 +4,9 @@
 # Large source boundary file (~48 MB) — auto-downloaded by analysis/make_map.py
 data/raw/geoBoundaries-IND-ADM2.geojson
 
+# Generated BigQuery load files (regenerate via build_bq_exports.py)
+analysis/bq_load/
+
 # Python
 __pycache__/
 *.pyc
