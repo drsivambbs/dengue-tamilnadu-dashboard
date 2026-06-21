@@ -1,7 +1,7 @@
 // Shared types for the dashboard. Kept central so the data layer (JSON now,
 // BigQuery API later) and the UI agree on the same shapes.
 
-export type Page = 'dashboard' | 'data'
+export type Page = 'dashboard' | 'analytics' | 'data'
 
 export type Year = 2024 | 2025 | 2026
 

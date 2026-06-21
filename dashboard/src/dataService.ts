@@ -6,9 +6,27 @@
  * on these functions, so nothing above this file changes.
  */
 import data from './data/dengue.json'
+import weatherData from './data/weather.json'
 import type { DengueData, DistrictMetric, Metric, Year } from './types'
 
 const db = data as unknown as DengueData
+
+interface WeatherYear {
+  rain: (number | null)[]
+  temp: (number | null)[]
+}
+const weather = weatherData as unknown as {
+  meta: Record<string, unknown>
+  districts: Record<string, Record<string, WeatherYear>>
+  state: Record<string, WeatherYear>
+}
+const EMPTY_W: WeatherYear = { rain: Array(12).fill(null), temp: Array(12).fill(null) }
+
+/** Monthly rainfall (mm) + mean temperature (°C) for the scope. */
+export function getMonthlyWeather(year: Year, district: string | null): WeatherYear {
+  if (district) return weather.districts[district]?.[String(year)] ?? EMPTY_W
+  return weather.state[String(year)] ?? EMPTY_W
+}
 
 export const meta = db.meta
 

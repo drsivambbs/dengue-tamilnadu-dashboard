@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { RightPanel } from './components/RightPanel'
 import { DataTable } from './components/DataTable'
+import { AdvancedAnalytics } from './components/AdvancedAnalytics'
 import type { ClassMethod, Metric, Page, Year } from './types'
 
 function App() {
@@ -28,6 +29,15 @@ function App() {
             setPage('dashboard')
           }}
         />
+      </div>
+    )
+  }
+
+  if (page === 'analytics') {
+    return (
+      <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+        <Header page={page} onPage={setPage} />
+        <AdvancedAnalytics selected={selected} onSelect={setSelected} />
       </div>
     )
   }

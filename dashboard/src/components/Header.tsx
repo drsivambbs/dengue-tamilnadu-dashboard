@@ -2,6 +2,7 @@ import type { Page } from '../types'
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'analytics', label: 'Advanced Analytics' },
   { id: 'data', label: 'Data' },
 ]
 
