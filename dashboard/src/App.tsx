@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
-import { KpiCards } from './components/KpiCards'
+import { RightPanel } from './components/RightPanel'
 import type { ClassMethod, Metric, Year } from './types'
 
 function App() {
@@ -11,6 +11,7 @@ function App() {
   const [selected, setSelected] = useState<string | null>(null)
   const [view, setView] = useState<CanvasView>('map')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [rightOpen, setRightOpen] = useState(true)
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
 
   return (
@@ -29,7 +30,7 @@ function App() {
           onMetric={setMetric}
           onSelect={setSelected}
         />
-        <main className="flex min-w-0 flex-1 flex-col gap-3 p-4">
+        <main className="flex min-w-0 flex-1 flex-col p-4">
           <CanvasPanel
             view={view}
             onView={setView}
@@ -39,8 +40,13 @@ function App() {
             classMethod={classMethod}
             onSelect={setSelected}
           />
-          <KpiCards year={year} selected={selected} />
         </main>
+        <RightPanel
+          year={year}
+          selected={selected}
+          open={rightOpen}
+          onToggle={() => setRightOpen((v) => !v)}
+        />
       </div>
     </div>
   )

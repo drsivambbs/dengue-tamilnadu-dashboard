@@ -9,7 +9,7 @@ export function KpiCards({ year, selected }: { year: Year; selected: string | nu
   const partial = isPartial(year)
 
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="flex flex-col gap-3">
       <Kpi label="Reported cases" value={num(t.cases)} foot={partial ? `partial · ${partial}` : 'full year'} />
       <Kpi label="Deaths" value={num(t.deaths)} foot={`CFR ${t.cfr.toFixed(2)}%`} />
       <Kpi label="Attack rate" value={t.attackRate.toFixed(1)} foot="per 100,000" />
