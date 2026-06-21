@@ -23,7 +23,7 @@ function App() {
           onMetric={setMetric}
           onSelect={setSelected}
         />
-        <main className="flex min-w-0 flex-1 flex-col gap-4 p-5">
+        <main className="flex min-w-0 flex-1 flex-col gap-3 p-4">
           <CanvasPanel
             view={view}
             onView={setView}

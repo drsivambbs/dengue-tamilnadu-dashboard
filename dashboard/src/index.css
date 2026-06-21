@@ -40,14 +40,14 @@
 
 @layer base {
   html {
-    font-size: 17px; /* generous base for older users */
+    font-size: 15px; /* compact, still legible for older users */
   }
   body {
     margin: 0;
     font-family: var(--font-sans);
     background: var(--color-canvas);
     color: var(--color-ink);
-    line-height: 1.55;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
   }
