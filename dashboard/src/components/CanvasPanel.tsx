@@ -14,6 +14,13 @@ interface Props {
   onSelect: (d: string | null) => void
 }
 
+const TREND_TITLE: Record<Metric, string> = {
+  cases: 'Monthly cases',
+  attackRate: 'Monthly attack rate',
+  deaths: 'Monthly deaths',
+  cfr: 'Monthly case fatality',
+}
+
 export function CanvasPanel({ view, onView, year, metric, selected, onSelect }: Props) {
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const partial = isPartial(year)
@@ -23,7 +30,7 @@ export function CanvasPanel({ view, onView, year, metric, selected, onSelect }: 
       <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-3.5">
         <div className="flex items-baseline gap-3">
           <h2 className="font-serif text-[1.15rem] font-600 text-ink">
-            {view === 'map' ? `${metricLabel} by district` : 'Monthly cases'}
+            {view === 'map' ? `${metricLabel} by district` : TREND_TITLE[metric]}
           </h2>
           {view === 'map' ? (
             <span className="rounded-md bg-brand-soft px-2.5 py-0.5 text-[0.82rem] font-600 text-brand-strong">
@@ -43,7 +50,7 @@ export function CanvasPanel({ view, onView, year, metric, selected, onSelect }: 
           <MapView year={year} metric={metric} selected={selected} onSelect={onSelect} />
         ) : (
           <div className="h-full w-full p-4">
-            <EpidemicCurve selected={selected} />
+            <EpidemicCurve selected={selected} metric={metric} />
           </div>
         )}
       </div>

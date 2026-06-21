@@ -62,6 +62,32 @@ export function getMonthlyCases(year: Year, district: string | null): number[] {
   return sum
 }
 
+/** Monthly deaths (12 values) for the scope. */
+export function getMonthlyDeaths(year: Year, district: string | null): number[] {
+  const m = db.monthly[String(year)]
+  if (district) return m[district]?.deaths ?? new Array(12).fill(0)
+  const sum = new Array(12).fill(0)
+  for (const d of Object.values(m)) d.deaths.forEach((v, i) => (sum[i] += v))
+  return sum
+}
+
+/**
+ * Monthly series for any metric. Attack rate uses the year's population as the
+ * denominator each month; CFR is monthly deaths ÷ monthly cases.
+ */
+export function getMonthlyMetric(year: Year, district: string | null, metric: Metric): number[] {
+  const cases = getMonthlyCases(year, district)
+  if (metric === 'cases') return cases
+  const deaths = getMonthlyDeaths(year, district)
+  if (metric === 'deaths') return deaths
+  if (metric === 'attackRate') {
+    const pop = getScopeTotals(year, district).population
+    return cases.map((c) => (pop ? +((c / pop) * 100000).toFixed(2) : 0))
+  }
+  // cfr
+  return deaths.map((d, i) => (cases[i] ? +((d / cases[i]) * 100).toFixed(2) : 0))
+}
+
 /** Year-on-year change in cases vs the previous year, for the scope. */
 export function getYoYChange(
   year: Year,
