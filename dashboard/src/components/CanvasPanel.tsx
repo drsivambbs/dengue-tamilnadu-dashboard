@@ -1,6 +1,8 @@
+import { useMemo } from 'react'
 import { MapView } from './MapView'
 import { EpidemicCurve } from './EpidemicCurve'
-import { isPartial } from '../dataService'
+import { DistrictSearch } from './DistrictSearch'
+import { isPartial, listDistricts } from '../dataService'
 import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
 export type CanvasView = 'map' | 'trend'
@@ -25,10 +27,11 @@ const TREND_TITLE: Record<Metric, string> = {
 export function CanvasPanel({ view, onView, year, metric, selected, classMethod, onSelect }: Props) {
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const partial = isPartial(year)
+  const districts = useMemo(() => listDistricts().slice().sort(), [])
 
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-line bg-surface shadow-sm">
-      <div className="flex items-center justify-between gap-4 border-b border-line px-6 py-3.5">
+      <div className="relative z-20 flex items-center gap-4 border-b border-line px-6 py-3">
         <div className="flex items-baseline gap-3">
           <h2 className="font-serif text-[1.15rem] font-600 text-ink">
             {view === 'map' ? `${metricLabel} by district` : TREND_TITLE[metric]}
@@ -43,6 +46,9 @@ export function CanvasPanel({ view, onView, year, metric, selected, classMethod,
           )}
         </div>
 
+        <div className="ml-auto w-56">
+          <DistrictSearch districts={districts} selected={selected} onSelect={onSelect} />
+        </div>
         <Toggle view={view} onView={onView} />
       </div>
 
