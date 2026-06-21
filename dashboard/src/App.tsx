@@ -3,9 +3,11 @@ import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { RightPanel } from './components/RightPanel'
-import type { ClassMethod, Metric, Year } from './types'
+import { DataTable } from './components/DataTable'
+import type { ClassMethod, Metric, Page, Year } from './types'
 
 function App() {
+  const [page, setPage] = useState<Page>('dashboard')
   const [year, setYear] = useState<Year>(2024)
   const [metric, setMetric] = useState<Metric>('attackRate')
   const [selected, setSelected] = useState<string | null>(null)
@@ -14,9 +16,25 @@ function App() {
   const [rightOpen, setRightOpen] = useState(true)
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
 
+  if (page === 'data') {
+    return (
+      <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+        <Header page={page} onPage={setPage} />
+        <DataTable
+          onOpenDistrict={(d, y) => {
+            setSelected(d)
+            setYear(y)
+            setView('map')
+            setPage('dashboard')
+          }}
+        />
+      </div>
+    )
+  }
+
   return (
     <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-      <Header />
+      <Header page={page} onPage={setPage} />
       <div className="flex min-h-0 flex-1">
         <Sidebar
           year={year}
