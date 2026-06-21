@@ -3,7 +3,7 @@ import { Header } from './components/Header'
 import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { KpiCards } from './components/KpiCards'
-import type { Metric, Year } from './types'
+import type { ClassMethod, Metric, Year } from './types'
 
 function App() {
   const [year, setYear] = useState<Year>(2024)
@@ -11,6 +11,7 @@ function App() {
   const [selected, setSelected] = useState<string | null>(null)
   const [view, setView] = useState<CanvasView>('map')
   const [sidebarOpen, setSidebarOpen] = useState(true)
+  const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
 
   return (
     <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
@@ -22,6 +23,8 @@ function App() {
           selected={selected}
           open={sidebarOpen}
           onToggle={() => setSidebarOpen((v) => !v)}
+          classMethod={classMethod}
+          onClassMethod={setClassMethod}
           onYear={setYear}
           onMetric={setMetric}
           onSelect={setSelected}
@@ -33,6 +36,7 @@ function App() {
             year={year}
             metric={metric}
             selected={selected}
+            classMethod={classMethod}
             onSelect={setSelected}
           />
           <KpiCards year={year} selected={selected} />

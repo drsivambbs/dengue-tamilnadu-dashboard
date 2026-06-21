@@ -5,8 +5,6 @@ export const PALETTE = ['#ffffcc', '#fed976', '#fd8d3c', '#e31a1c', '#800026']
 export const NO_DATA = '#d9d9d9'
 
 interface MetricConfig {
-  /** 4 thresholds → 5 classes */
-  breaks: number[]
   unit: string
   format: (v: number) => string
 }
@@ -14,39 +12,39 @@ interface MetricConfig {
 const int = (v: number) => Math.round(v).toLocaleString('en-IN')
 
 export const METRIC_CONFIG: Record<Metric, MetricConfig> = {
-  cases: { breaks: [250, 500, 1000, 2500], unit: 'cases', format: int },
-  attackRate: { breaks: [20, 40, 60, 100], unit: 'per 100k', format: (v) => v.toFixed(1) },
-  deaths: { breaks: [1, 2, 4, 8], unit: 'deaths', format: int },
-  cfr: { breaks: [0.05, 0.1, 0.25, 0.5], unit: '%', format: (v) => `${v.toFixed(2)}%` },
+  cases: { unit: 'cases', format: int },
+  attackRate: { unit: 'per 100k', format: (v) => v.toFixed(1) },
+  deaths: { unit: 'deaths', format: int },
+  cfr: { unit: '%', format: (v) => `${v.toFixed(2)}%` },
 }
 
-/** Legend rows: [colour, label] for the given metric. */
-export function legendRows(metric: Metric): { color: string; label: string }[] {
-  const { breaks, format } = METRIC_CONFIG[metric]
-  return [
-    { color: PALETTE[0], label: `< ${format(breaks[0])}` },
-    { color: PALETTE[1], label: `${format(breaks[0])} – ${format(breaks[1])}` },
-    { color: PALETTE[2], label: `${format(breaks[1])} – ${format(breaks[2])}` },
-    { color: PALETTE[3], label: `${format(breaks[2])} – ${format(breaks[3])}` },
-    { color: PALETTE[4], label: `≥ ${format(breaks[3])}` },
-  ]
+/** Evenly sample `n` colours from the 5-class palette (keeps contrast when
+ *  fewer than 5 classes are produced). */
+export function sampleColors(n: number): string[] {
+  if (n <= 1) return [PALETTE[PALETTE.length - 1]]
+  return Array.from({ length: n }, (_, i) =>
+    PALETTE[Math.round((i * (PALETTE.length - 1)) / (n - 1))],
+  )
 }
 
-/** MapLibre step expression that colours a feature by its `value` property. */
-export function colorExpression(metric: Metric): unknown[] {
-  const { breaks } = METRIC_CONFIG[metric]
-  return [
-    'case',
-    ['==', ['get', 'value'], null],
-    NO_DATA,
-    [
-      'step',
-      ['get', 'value'],
-      PALETTE[0],
-      breaks[0], PALETTE[1],
-      breaks[1], PALETTE[2],
-      breaks[2], PALETTE[3],
-      breaks[3], PALETTE[4],
-    ],
-  ]
+/** Legend rows from dynamic breaks (length 0..4 → 1..5 classes). */
+export function legendRows(breaks: number[], metric: Metric): { color: string; label: string }[] {
+  const fmt = METRIC_CONFIG[metric].format
+  const colors = sampleColors(breaks.length + 1)
+  if (breaks.length === 0) return [{ color: colors[0], label: 'all districts' }]
+  const rows = [{ color: colors[0], label: `< ${fmt(breaks[0])}` }]
+  for (let i = 1; i < breaks.length; i++) {
+    rows.push({ color: colors[i], label: `${fmt(breaks[i - 1])} – ${fmt(breaks[i])}` })
+  }
+  rows.push({ color: colors[breaks.length], label: `≥ ${fmt(breaks[breaks.length - 1])}` })
+  return rows
+}
+
+/** MapLibre step expression colouring a feature by its `value` property,
+ *  using the supplied (already strictly-increasing) breaks. */
+export function colorExpression(breaks: number[]): unknown[] {
+  const colors = sampleColors(breaks.length + 1)
+  const step: unknown[] = ['step', ['get', 'value'], colors[0]]
+  breaks.forEach((b, i) => step.push(b, colors[i + 1]))
+  return ['case', ['==', ['get', 'value'], null], NO_DATA, step]
 }

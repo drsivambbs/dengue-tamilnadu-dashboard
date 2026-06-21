@@ -5,8 +5,9 @@ import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { getYearValues, getRecord } from '../dataService'
 import { colorExpression, METRIC_CONFIG } from '../metrics'
+import { classify } from '../classify'
 import { MapLegend } from './MapLegend'
-import { METRICS, type Metric, type Year } from '../types'
+import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
 // Free, no-API-key light basemap (CARTO Positron) — calm, muted, lets data lead.
 const BASEMAP: StyleSpecification = {
@@ -66,14 +67,22 @@ interface Props {
   year: Year
   metric: Metric
   selected: string | null
+  classMethod: ClassMethod
   onSelect: (d: string | null) => void
 }
 
-export function MapView({ year, metric, selected, onSelect }: Props) {
+export function MapView({ year, metric, selected, classMethod, onSelect }: Props) {
   const mapRef = useRef<MapRef | null>(null)
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
+
+  // Data-driven class breaks: recomputed from the actual values for this
+  // metric + year using the chosen classification method.
+  const breaks = useMemo(
+    () => classify(getYearValues(year, metric).map((d) => d.value), classMethod),
+    [year, metric, classMethod],
+  )
 
   useEffect(() => {
     fetch('/tamilnadu_districts.geojson')
@@ -135,7 +144,7 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
 
   return (
     <div className="relative h-full w-full">
-        <MapLegend metric={metric} />
+        <MapLegend metric={metric} breaks={breaks} method={classMethod} />
         <MapGL
           ref={mapRef}
           initialViewState={{ longitude: 78.4, latitude: 10.85, zoom: 5.9 }}
@@ -154,7 +163,7 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
               <Layer
                 id="district-fill"
                 type="fill"
-                paint={{ 'fill-color': colorExpression(metric) as never, 'fill-opacity': 0.82 }}
+                paint={{ 'fill-color': colorExpression(breaks) as never, 'fill-opacity': 0.82 }}
               />
               <Layer
                 id="district-line"

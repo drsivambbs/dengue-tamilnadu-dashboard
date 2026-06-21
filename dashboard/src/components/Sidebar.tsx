@@ -3,21 +3,23 @@ import { Panel } from './Panel'
 import { DistrictSearch } from './DistrictSearch'
 import { METRIC_CONFIG } from '../metrics'
 import { listDistricts, getRecord } from '../dataService'
-import { METRICS, YEARS, type Metric, type Year } from '../types'
+import { CLASS_METHODS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
 
 interface Props {
   year: Year
   metric: Metric
   selected: string | null
   open: boolean
+  classMethod: ClassMethod
   onToggle: () => void
+  onClassMethod: (m: ClassMethod) => void
   onYear: (y: Year) => void
   onMetric: (m: Metric) => void
   onSelect: (d: string | null) => void
 }
 
-/** The "workbench" â€” the persistent control bench on the left. */
-export function Sidebar({ year, metric, selected, open, onToggle, onYear, onMetric, onSelect }: Props) {
+/** The "workbench" — the persistent control bench on the left. */
+export function Sidebar({ year, metric, selected, open, classMethod, onToggle, onClassMethod, onYear, onMetric, onSelect }: Props) {
   const districts = useMemo(() => listDistricts().slice().sort(), [])
 
   if (!open) {
@@ -85,7 +87,7 @@ export function Sidebar({ year, metric, selected, open, onToggle, onYear, onMetr
             )
           })}
         </div>
-        <p className="mt-2 text-[0.78rem] text-ink-faint">* 2026 is partial (Janâ€“Jun)</p>
+        <p className="mt-2 text-[0.78rem] text-ink-faint">* 2026 is partial (Jan–Jun)</p>
 
         <label className="mb-2 mt-5 block text-[0.9rem] font-600 text-ink">Metric</label>
         <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Select metric">
@@ -126,6 +128,31 @@ export function Sidebar({ year, metric, selected, open, onToggle, onYear, onMetr
         <LayerRow label="Health facilities" sublabel="Point layer" soon />
         <LayerRow label="Rainfall" sublabel="Raster overlay" soon />
         <LayerRow label="Population density" sublabel="Raster overlay" soon />
+      </Panel>
+
+      {/* CLASSIFICATION ------------------------------------------------- */}
+      <Panel title="Classification" hint="How the map colours are split into classes (recomputed from the data)." defaultOpen={false}>
+        <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Classification method">
+          {CLASS_METHODS.map((c) => {
+            const active = c.id === classMethod
+            return (
+              <button
+                key={c.id}
+                role="radio"
+                aria-checked={active}
+                onClick={() => onClassMethod(c.id)}
+                className={`rounded-lg border px-3.5 py-2.5 text-left transition-colors ${
+                  active ? 'border-brand bg-brand-soft' : 'border-line bg-surface hover:border-line-strong hover:bg-panel'
+                }`}
+              >
+                <span className={`block text-[0.92rem] font-600 ${active ? 'text-brand-strong' : 'text-ink'}`}>
+                  {c.label}
+                </span>
+                <span className="block text-[0.76rem] leading-snug text-ink-faint">{c.help}</span>
+              </button>
+            )
+          })}
+        </div>
       </Panel>
 
       {/* FIND DISTRICT -------------------------------------------------- */}

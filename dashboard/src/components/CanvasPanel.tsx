@@ -1,7 +1,7 @@
 import { MapView } from './MapView'
 import { EpidemicCurve } from './EpidemicCurve'
 import { isPartial } from '../dataService'
-import { METRICS, type Metric, type Year } from '../types'
+import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
 export type CanvasView = 'map' | 'trend'
 
@@ -11,6 +11,7 @@ interface Props {
   year: Year
   metric: Metric
   selected: string | null
+  classMethod: ClassMethod
   onSelect: (d: string | null) => void
 }
 
@@ -21,7 +22,7 @@ const TREND_TITLE: Record<Metric, string> = {
   cfr: 'Monthly case fatality',
 }
 
-export function CanvasPanel({ view, onView, year, metric, selected, onSelect }: Props) {
+export function CanvasPanel({ view, onView, year, metric, selected, classMethod, onSelect }: Props) {
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const partial = isPartial(year)
 
@@ -47,7 +48,7 @@ export function CanvasPanel({ view, onView, year, metric, selected, onSelect }: 
 
       <div className="relative min-h-0 flex-1 p-0">
         {view === 'map' ? (
-          <MapView year={year} metric={metric} selected={selected} onSelect={onSelect} />
+          <MapView year={year} metric={metric} selected={selected} classMethod={classMethod} onSelect={onSelect} />
         ) : (
           <div className="h-full w-full p-4">
             <EpidemicCurve selected={selected} metric={metric} />
