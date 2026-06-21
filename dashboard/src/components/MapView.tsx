@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useRef, useState, useCallback } from 'react'
+import type { ComponentProps } from 'react'
 import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/maplibre'
 import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { getYearValues, getRecord } from '../dataService'
-import { colorExpression, METRIC_CONFIG } from '../metrics'
+import { colorExpression, legendRows, METRIC_CONFIG, NO_DATA } from '../metrics'
 import { classify } from '../classify'
+import { exportMapImage, downloadBlob } from '../export'
 import { MapLegend } from './MapLegend'
 import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
@@ -89,6 +91,19 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
     [year, metric, classMethod],
   )
 
+  const exportPng = useCallback(async () => {
+    const map = mapRef.current
+    if (!map) return
+    map.redraw()
+    const legend = [...legendRows(breaks, metric), { color: NO_DATA, label: 'No data' }]
+    const blob = await exportMapImage(map.getCanvas(), {
+      title: `${metricLabel} by district — ${year}`,
+      subtitle: 'Tamil Nadu · Source: IHIP',
+      legend,
+    })
+    if (blob) downloadBlob(`tn-dengue-${metric}-${year}.png`, blob)
+  }, [breaks, metric, metricLabel, year])
+
   useEffect(() => {
     fetch('/tamilnadu_districts.geojson')
       .then((r) => r.json())
@@ -149,19 +164,33 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
 
   return (
     <div className="relative h-full w-full">
-        {/* Reset / home — recenters the whole state */}
-        <button
-          onClick={resetView}
-          aria-label="Reset map view"
-          title="Reset view"
-          className="absolute left-3 top-3 z-10 flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 text-[0.85rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
-        >
-          <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
-            <path d="M3 11l9-8 9 8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            <path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-          Reset
-        </button>
+        {/* Top-left toolbar: reset + PNG export */}
+        <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
+          <button
+            onClick={resetView}
+            aria-label="Reset map view"
+            title="Reset view"
+            className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 text-[0.85rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+              <path d="M3 11l9-8 9 8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            Reset
+          </button>
+          <button
+            onClick={exportPng}
+            aria-label="Download map as PNG"
+            title="Download map (PNG)"
+            className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 text-[0.85rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
+          >
+            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+              <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+              <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+            PNG
+          </button>
+        </div>
 
         <MapLegend metric={metric} breaks={breaks} method={classMethod} />
         <MapGL
@@ -175,6 +204,7 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
           cursor={hover ? 'pointer' : 'grab'}
           attributionControl={{ compact: true }}
           style={{ position: 'absolute', inset: 0 }}
+          {...({ preserveDrawingBuffer: true } as unknown as Partial<ComponentProps<typeof MapGL>>)}
         >
           <NavigationControl position="top-right" showCompass={false} />
           {fc && (

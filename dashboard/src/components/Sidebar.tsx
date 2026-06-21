@@ -1,4 +1,5 @@
 import { Panel } from './Panel'
+import { downloadCsv } from '../export'
 import { CLASS_METHODS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
 
 interface Props {
@@ -150,17 +151,12 @@ export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMeth
       {/* EXPORT --------------------------------------------------------- */}
       <Panel title="Export" defaultOpen={false}>
         <button
-          disabled
-          className="mb-2 w-full rounded-lg border border-line bg-panel py-3 text-[0.9rem] font-600 text-ink-soft disabled:cursor-not-allowed disabled:opacity-70"
-        >
-          Download map (PNG)
-        </button>
-        <button
-          disabled
-          className="w-full rounded-lg border border-line bg-panel py-3 text-[0.9rem] font-600 text-ink-soft disabled:cursor-not-allowed disabled:opacity-70"
+          onClick={downloadCsv}
+          className="w-full rounded-lg border border-line bg-surface py-3 text-[0.9rem] font-600 text-ink-soft transition-colors hover:border-line-strong hover:text-brand-strong"
         >
           Download data (CSV)
         </button>
+        <p className="mt-2 text-[0.78rem] text-ink-faint">Map image (PNG): use the PNG button on the map.</p>
       </Panel>
     </aside>
   )

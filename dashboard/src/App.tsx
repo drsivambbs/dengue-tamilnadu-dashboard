@@ -41,9 +41,11 @@ function App() {
         </main>
         <RightPanel
           year={year}
+          metric={metric}
           selected={selected}
           open={rightOpen}
           onToggle={() => setRightOpen((v) => !v)}
+          onSelect={setSelected}
         />
       </div>
     </div>

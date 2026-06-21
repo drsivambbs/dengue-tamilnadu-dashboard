@@ -47,6 +47,26 @@ export function isPartial(year: Year): string | undefined {
   return db.meta.partial[String(year)]
 }
 
+/** Flat district × year rows for CSV export. */
+export function getExportRows() {
+  const rows: Record<string, string | number>[] = []
+  for (const d of db.districts) {
+    for (const y of db.meta.years) {
+      const m = d.metrics[String(y)]
+      rows.push({
+        District: d.district,
+        Year: y,
+        Cases: m.cases,
+        Deaths: m.deaths,
+        Population: m.population,
+        AttackRate_per_100k: m.attackRate,
+        CFR_percent: m.cfr,
+      })
+    }
+  }
+  return rows
+}
+
 /** Totals for the chosen scope: a single district, or all of Tamil Nadu. */
 export function getScopeTotals(year: Year, district: string | null): DistrictMetric {
   if (district) return getRecord(district, year) ?? getStateTotals(year)

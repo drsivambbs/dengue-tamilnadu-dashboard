@@ -1,21 +1,26 @@
 import { KpiCards } from './KpiCards'
+import { DistrictRanking } from './DistrictRanking'
 import { isPartial } from '../dataService'
-import type { Year } from '../types'
+import type { Metric, Year } from '../types'
 
 /**
- * Right "summary" rail — scope KPIs now; the natural home for the insights
- * banner and district ranking later. Collapsible like the workbench.
+ * Right "summary" rail — scope KPIs + district ranking. Collapsible like the
+ * workbench; the natural home for the insights banner later.
  */
 export function RightPanel({
   year,
+  metric,
   selected,
   open,
   onToggle,
+  onSelect,
 }: {
   year: Year
+  metric: Metric
   selected: string | null
   open: boolean
   onToggle: () => void
+  onSelect: (d: string | null) => void
 }) {
   const partial = isPartial(year)
 
@@ -40,7 +45,7 @@ export function RightPanel({
   }
 
   return (
-    <aside className="flex w-[300px] shrink-0 flex-col overflow-y-auto border-l border-line-strong bg-surface" aria-label="Summary">
+    <aside className="flex w-[300px] shrink-0 flex-col overflow-hidden border-l border-line-strong bg-surface" aria-label="Summary">
       <div className="flex items-start justify-between gap-2 border-b border-line px-5 py-4">
         <div>
           <h2 className="font-serif text-[1.05rem] font-600 text-ink">Summary</h2>
@@ -64,6 +69,7 @@ export function RightPanel({
       <div className="p-4">
         <KpiCards year={year} selected={selected} />
       </div>
+      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} />
     </aside>
   )
 }
