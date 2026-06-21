@@ -5,6 +5,7 @@ import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
 import { getYearValues, getRecord } from '../dataService'
 import { colorExpression, METRIC_CONFIG } from '../metrics'
+import { MapLegend } from './MapLegend'
 import { METRICS, type Metric, type Year } from '../types'
 
 // Free, no-API-key light basemap (CARTO Positron) — calm, muted, lets data lead.
@@ -134,6 +135,7 @@ export function MapView({ year, metric, selected, onSelect }: Props) {
 
   return (
     <div className="relative h-full w-full">
+        <MapLegend metric={metric} />
         <MapGL
           ref={mapRef}
           initialViewState={{ longitude: 78.4, latitude: 10.85, zoom: 5.9 }}

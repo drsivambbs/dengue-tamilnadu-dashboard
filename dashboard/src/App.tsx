@@ -10,6 +10,7 @@ function App() {
   const [metric, setMetric] = useState<Metric>('attackRate')
   const [selected, setSelected] = useState<string | null>(null)
   const [view, setView] = useState<CanvasView>('map')
+  const [sidebarOpen, setSidebarOpen] = useState(true)
 
   return (
     <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
@@ -19,6 +20,8 @@ function App() {
           year={year}
           metric={metric}
           selected={selected}
+          open={sidebarOpen}
+          onToggle={() => setSidebarOpen((v) => !v)}
           onYear={setYear}
           onMetric={setMetric}
           onSelect={setSelected}

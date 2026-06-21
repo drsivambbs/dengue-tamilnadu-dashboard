@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 import { Panel } from './Panel'
 import { DistrictSearch } from './DistrictSearch'
-import { legendRows, METRIC_CONFIG } from '../metrics'
+import { METRIC_CONFIG } from '../metrics'
 import { listDistricts, getRecord } from '../dataService'
 import { METRICS, YEARS, type Metric, type Year } from '../types'
 
@@ -9,22 +9,57 @@ interface Props {
   year: Year
   metric: Metric
   selected: string | null
+  open: boolean
+  onToggle: () => void
   onYear: (y: Year) => void
   onMetric: (m: Metric) => void
   onSelect: (d: string | null) => void
 }
 
-/** The "workbench" — the persistent control bench on the left. */
-export function Sidebar({ year, metric, selected, onYear, onMetric, onSelect }: Props) {
+/** The "workbench" â€” the persistent control bench on the left. */
+export function Sidebar({ year, metric, selected, open, onToggle, onYear, onMetric, onSelect }: Props) {
   const districts = useMemo(() => listDistricts().slice().sort(), [])
+
+  if (!open) {
+    return (
+      <aside className="flex w-12 shrink-0 flex-col items-center border-r border-line-strong bg-surface py-3" aria-label="Dashboard controls (collapsed)">
+        <button
+          onClick={onToggle}
+          aria-label="Expand workbench"
+          title="Expand workbench"
+          className="rounded-lg p-2 text-ink-soft hover:bg-brand-soft hover:text-brand-strong"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+            <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+        <span className="mt-3 [writing-mode:vertical-rl] text-[0.72rem] font-600 uppercase tracking-[0.12em] text-ink-faint">
+          Workbench
+        </span>
+      </aside>
+    )
+  }
+
   return (
     <aside
-      className="flex w-[340px] shrink-0 flex-col overflow-y-auto border-r border-line-strong bg-surface"
+      className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-r border-line-strong bg-surface"
       aria-label="Dashboard controls"
     >
-      <div className="border-b border-line px-5 py-4">
-        <h2 className="font-serif text-[1.05rem] font-600 text-ink">Workbench</h2>
-        <p className="text-[0.82rem] text-ink-soft">Choose what to show on the map</p>
+      <div className="flex items-start justify-between gap-2 border-b border-line px-5 py-4">
+        <div>
+          <h2 className="font-serif text-[1.05rem] font-600 text-ink">Workbench</h2>
+          <p className="text-[0.82rem] text-ink-soft">Choose what to show on the map</p>
+        </div>
+        <button
+          onClick={onToggle}
+          aria-label="Collapse workbench"
+          title="Collapse workbench"
+          className="-mr-1 shrink-0 rounded-lg p-1.5 text-ink-faint hover:bg-brand-soft hover:text-brand-strong"
+        >
+          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+            <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
       </div>
 
       {/* VIEW ----------------------------------------------------------- */}
@@ -50,7 +85,7 @@ export function Sidebar({ year, metric, selected, onYear, onMetric, onSelect }: 
             )
           })}
         </div>
-        <p className="mt-2 text-[0.78rem] text-ink-faint">* 2026 is partial (Jan–Jun)</p>
+        <p className="mt-2 text-[0.78rem] text-ink-faint">* 2026 is partial (Janâ€“Jun)</p>
 
         <label className="mb-2 mt-5 block text-[0.9rem] font-600 text-ink">Metric</label>
         <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Select metric">
@@ -99,17 +134,6 @@ export function Sidebar({ year, metric, selected, onYear, onMetric, onSelect }: 
         {selected && (
           <SelectedReadout district={selected} year={year} metric={metric} onClear={() => onSelect(null)} />
         )}
-      </Panel>
-
-      {/* LEGEND --------------------------------------------------------- */}
-      <Panel title="Legend" hint={`${METRICS.find((m) => m.id === metric)?.label} (${METRIC_CONFIG[metric].unit})`}>
-        {legendRows(metric).map((row) => (
-          <LegendSwatch key={row.color} color={row.color} label={row.label} />
-        ))}
-        <div className="mt-2 flex items-center gap-2.5 py-1">
-          <span className="h-4 w-7 rounded-sm border border-line-strong bg-[#d9d9d9]" />
-          <span className="text-[0.85rem] text-ink-soft">No data</span>
-        </div>
       </Panel>
 
       {/* EXPORT --------------------------------------------------------- */}
@@ -208,15 +232,6 @@ function ReadRow({ label, value, highlight }: { label: string; value: string; hi
     <div className="flex items-baseline justify-between gap-3">
       <dt className="text-ink-soft">{label}</dt>
       <dd className={`font-mono font-600 ${highlight ? 'text-brand-strong' : 'text-ink'}`}>{value}</dd>
-    </div>
-  )
-}
-
-function LegendSwatch({ color, label }: { color: string; label: string }) {
-  return (
-    <div className="flex items-center gap-2.5 py-1">
-      <span className="h-4 w-7 rounded-sm border border-line-strong" style={{ background: color }} />
-      <span className="text-[0.85rem] text-ink-soft">{label || ' '}</span>
     </div>
   )
 }

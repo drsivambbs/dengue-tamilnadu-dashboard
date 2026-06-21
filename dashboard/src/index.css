@@ -7,8 +7,8 @@
    ============================================================ */
 @theme {
   /* Type */
-  --font-sans: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'IBM Plex Serif', ui-serif, Georgia, serif;
+  --font-sans: 'Public Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Source Serif 4', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
 
   /* Surfaces — cool, light, layered */
