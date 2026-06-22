@@ -29,6 +29,17 @@ export function getMonthlyWeather(year: Year, district: string | null): WeatherY
   return weather.state[String(year)] ?? EMPTY_W
 }
 
+/** Annual total rainfall (mm) for a district. */
+export function getAnnualRain(year: Year, district: string): number {
+  return getMonthlyWeather(year, district).rain.reduce((a: number, v) => a + (v ?? 0), 0)
+}
+
+/** Annual mean humidity (%) for a district. */
+export function getAnnualHumidity(year: Year, district: string): number {
+  const h = (getMonthlyWeather(year, district).hum ?? []).filter((v): v is number => v != null)
+  return h.length ? h.reduce((a, v) => a + v, 0) / h.length : 0
+}
+
 export const meta = db.meta
 
 export function listDistricts(): string[] {
