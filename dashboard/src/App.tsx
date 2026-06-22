@@ -5,6 +5,7 @@ import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { RightPanel } from './components/RightPanel'
 import { DataTable } from './components/DataTable'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
+import { GisDashboard } from './components/GisDashboard'
 import type { ClassMethod, Metric, Page, Year } from './types'
 
 function App() {
@@ -38,6 +39,15 @@ function App() {
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
         <Header page={page} onPage={setPage} />
         <AdvancedAnalytics selected={selected} onSelect={setSelected} />
+      </div>
+    )
+  }
+
+  if (page === 'gis') {
+    return (
+      <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+        <Header page={page} onPage={setPage} />
+        <GisDashboard />
       </div>
     )
   }
