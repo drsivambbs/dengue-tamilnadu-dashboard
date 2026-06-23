@@ -19,6 +19,16 @@ function App() {
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
   const [month, setMonth] = useState(-1) // -1 = whole year
 
+  // Default filter state + a one-click reset for the dashboard workbench.
+  const isDefault = year === 2024 && metric === 'attackRate' && selected === null && month === -1 && classMethod === 'quantile'
+  const resetFilters = () => {
+    setYear(2024)
+    setMetric('attackRate')
+    setSelected(null)
+    setMonth(-1)
+    setClassMethod('quantile')
+  }
+
   if (page === 'data') {
     return (
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
@@ -66,6 +76,8 @@ function App() {
           onClassMethod={setClassMethod}
           onYear={setYear}
           onMetric={setMetric}
+          onReset={resetFilters}
+          canReset={!isDefault}
         />
         <main className="flex min-w-0 flex-1 flex-col p-4">
           <CanvasPanel

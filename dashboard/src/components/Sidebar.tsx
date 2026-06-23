@@ -11,10 +11,12 @@ interface Props {
   onClassMethod: (m: ClassMethod) => void
   onYear: (y: Year) => void
   onMetric: (m: Metric) => void
+  onReset: () => void
+  canReset: boolean
 }
 
 /** The "workbench" — the persistent control bench on the left. */
-export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMethod, onYear, onMetric }: Props) {
+export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMethod, onYear, onMetric, onReset, canReset }: Props) {
   if (!open) {
     return (
       <aside className="flex w-12 shrink-0 flex-col items-center border-r border-line-strong bg-surface py-3" aria-label="Dashboard controls (collapsed)">
@@ -45,16 +47,26 @@ export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMeth
           <h2 className="font-serif text-[1.05rem] font-600 text-ink">Workbench</h2>
           <p className="text-[0.82rem] text-ink-soft">Choose what to show on the map</p>
         </div>
-        <button
-          onClick={onToggle}
-          aria-label="Collapse workbench"
-          title="Collapse workbench"
-          className="-mr-1 shrink-0 rounded-lg p-1.5 text-ink-faint hover:bg-brand-soft hover:text-brand-strong"
-        >
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
-            <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
+        <div className="flex shrink-0 items-center gap-1">
+          <button
+            onClick={onReset}
+            disabled={!canReset}
+            title="Reset all filters to defaults"
+            className="rounded-lg border border-line px-2.5 py-1.5 text-[0.78rem] font-600 text-ink-soft transition-colors hover:border-line-strong hover:text-brand-strong disabled:cursor-default disabled:opacity-40 disabled:hover:border-line disabled:hover:text-ink-soft"
+          >
+            Reset
+          </button>
+          <button
+            onClick={onToggle}
+            aria-label="Collapse workbench"
+            title="Collapse workbench"
+            className="-mr-1 rounded-lg p-1.5 text-ink-faint hover:bg-brand-soft hover:text-brand-strong"
+          >
+            <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+              <path d="M15 6l-6 6 6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* VIEW ----------------------------------------------------------- */}
@@ -115,14 +127,6 @@ export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMeth
         </div>
       </Panel>
 
-      {/* MAP LAYERS ----------------------------------------------------- */}
-      <Panel title="Map layers" hint="Toggle data layers. More GIS layers arrive in later phases.">
-        <LayerRow label="District choropleth" sublabel="Selected metric by district" enabled />
-        <LayerRow label="Health facilities" sublabel="Point layer" soon />
-        <LayerRow label="Rainfall" sublabel="Raster overlay" soon />
-        <LayerRow label="Population density" sublabel="Raster overlay" soon />
-      </Panel>
-
       {/* CLASSIFICATION ------------------------------------------------- */}
       <Panel title="Classification" hint="How the map colours are split into classes (recomputed from the data)." defaultOpen={false}>
         <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Classification method">
@@ -159,41 +163,6 @@ export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMeth
         <p className="mt-2 text-[0.78rem] text-ink-faint">Map image (PNG): use the PNG button on the map.</p>
       </Panel>
     </aside>
-  )
-}
-
-function LayerRow({
-  label,
-  sublabel,
-  enabled = false,
-  soon = false,
-}: {
-  label: string
-  sublabel: string
-  enabled?: boolean
-  soon?: boolean
-}) {
-  return (
-    <div className="flex items-center justify-between gap-3 py-2.5">
-      <div>
-        <p className={`text-[0.95rem] font-600 ${soon ? 'text-ink-faint' : 'text-ink'}`}>{label}</p>
-        <p className="text-[0.8rem] text-ink-faint">{sublabel}</p>
-      </div>
-      {soon ? (
-        <span className="rounded-full border border-line bg-panel px-2.5 py-1 text-[0.68rem] font-600 uppercase tracking-wide text-ink-faint">
-          Soon
-        </span>
-      ) : (
-        <span
-          aria-hidden="true"
-          className={`flex h-6 w-11 items-center rounded-full px-0.5 transition-colors ${
-            enabled ? 'justify-end bg-brand' : 'justify-start bg-line-strong'
-          }`}
-        >
-          <span className="h-5 w-5 rounded-full bg-surface shadow" />
-        </span>
-      )}
-    </div>
   )
 }
 
