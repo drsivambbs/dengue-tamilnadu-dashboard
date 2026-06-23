@@ -1,0 +1,5 @@
+# Serves the pre-built Vite static site (dist/) on Cloud Run.
+FROM nginx:alpine
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+COPY dist /usr/share/nginx/html
+EXPOSE 8080

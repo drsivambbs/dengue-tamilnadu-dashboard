@@ -1,0 +1,11 @@
+# Upload only the built site + container config to Cloud Build.
+# (Do NOT fall back to .gitignore, which excludes dist/.)
+node_modules/
+src/
+public/
+.vite/
+*.tsbuildinfo
+tsconfig*.json
+vite.config.ts
+eslint.config.js
+README.md
