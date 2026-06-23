@@ -65,6 +65,35 @@ export function getYearValues(
   })
 }
 
+/** A single month's metrics for a district (derived from monthly + population). */
+export function getMonthlyRecord(year: Year, month: number, district: string): DistrictMetric | undefined {
+  const annual = getRecord(district, year)
+  if (!annual) return undefined
+  const m = db.monthly[String(year)]?.[district]
+  const cases = m?.cases[month] ?? 0
+  const deaths = m?.deaths[month] ?? 0
+  const population = annual.population
+  return {
+    cases,
+    deaths,
+    population,
+    attackRate: population ? +((cases / population) * 1e5).toFixed(1) : 0,
+    cfr: cases ? +((deaths / cases) * 100).toFixed(2) : 0,
+  }
+}
+
+/** All districts for a specific month, with the chosen metric pulled out. */
+export function getMonthValues(
+  year: Year,
+  month: number,
+  metric: Metric,
+): { district: string; value: number; record: DistrictMetric }[] {
+  return listDistricts().map((district) => {
+    const record = getMonthlyRecord(year, month, district)!
+    return { district, value: record[metric], record }
+  })
+}
+
 export function getStateTotals(year: Year): DistrictMetric {
   return db.stateTotals[String(year)]
 }

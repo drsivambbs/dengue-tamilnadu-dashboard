@@ -17,6 +17,7 @@ function App() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [rightOpen, setRightOpen] = useState(true)
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
+  const [month, setMonth] = useState(-1) // -1 = whole year
 
   if (page === 'data') {
     return (
@@ -71,9 +72,12 @@ function App() {
             view={view}
             onView={setView}
             year={year}
+            month={month}
             metric={metric}
             selected={selected}
             classMethod={classMethod}
+            onYear={setYear}
+            onMonth={setMonth}
             onSelect={setSelected}
           />
         </main>

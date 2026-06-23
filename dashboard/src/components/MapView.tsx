@@ -4,7 +4,7 @@ import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/map
 import type { MapLayerMouseEvent, MapRef, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection, Feature, Position } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { getYearValues, getRecord } from '../dataService'
+import { getYearValues, getMonthValues } from '../dataService'
 import { colorExpression, legendRows, METRIC_CONFIG, NO_DATA } from '../metrics'
 import { classify } from '../classify'
 import { exportMapImage, downloadBlob } from '../export'
@@ -68,12 +68,13 @@ function featureBounds(feature: Feature): Bounds {
 interface Props {
   year: Year
   metric: Metric
+  month: number // -1 = whole year, 0-11 = a specific month
   selected: string | null
   classMethod: ClassMethod
   onSelect: (d: string | null) => void
 }
 
-export function MapView({ year, metric, selected, classMethod, onSelect }: Props) {
+export function MapView({ year, metric, month, selected, classMethod, onSelect }: Props) {
   const mapRef = useRef<MapRef | null>(null)
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
@@ -84,12 +85,15 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
     mapRef.current?.fitBounds(TN_BOUNDS, { padding: 20, duration: 700 })
   }, [onSelect])
 
-  // Data-driven class breaks: recomputed from the actual values for this
-  // metric + year using the chosen classification method.
-  const breaks = useMemo(
-    () => classify(getYearValues(year, metric).map((d) => d.value), classMethod),
-    [year, metric, classMethod],
+  // Values per district for this metric — whole year or a single month.
+  const scope = useMemo(
+    () => (month < 0 ? getYearValues(year, metric) : getMonthValues(year, month, metric)),
+    [year, metric, month],
   )
+  const recordOf = useMemo(() => new Map(scope.map((s) => [s.district, s])), [scope])
+
+  // Data-driven class breaks recomputed from the actual values + classification.
+  const breaks = useMemo(() => classify(scope.map((d) => d.value), classMethod), [scope, classMethod])
 
   const exportPng = useCallback(async () => {
     const map = mapRef.current
@@ -128,18 +132,17 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
   // Merge the selected metric's value into each feature for data-driven styling.
   const fc = useMemo<FeatureCollection | null>(() => {
     if (!geo) return null
-    const values = new Map(getYearValues(year, metric).map((d) => [d.district, d.value]))
     return {
       ...geo,
       features: geo.features.map((f) => ({
         ...f,
         properties: {
           ...f.properties,
-          value: values.get((f.properties as { district: string }).district) ?? null,
+          value: recordOf.get((f.properties as { district: string }).district)?.value ?? null,
         },
       })),
     }
-  }, [geo, year, metric])
+  }, [geo, recordOf])
 
   const onMove = useCallback((e: MapLayerMouseEvent) => {
     const feat = e.features?.[0]
@@ -160,7 +163,7 @@ export function MapView({ year, metric, selected, classMethod, onSelect }: Props
   )
 
   const fmt = METRIC_CONFIG[metric].format
-  const hoverRec = hover ? getRecord(hover.district, year) : undefined
+  const hoverRec = hover ? recordOf.get(hover.district)?.record : undefined
 
   return (
     <div className="relative h-full w-full">
