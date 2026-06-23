@@ -2,9 +2,8 @@ import type { Page } from '../types'
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
-  { id: 'analytics', label: 'Advanced Analytics' },
-  { id: 'gis', label: 'GIS' },
   { id: 'data', label: 'Data' },
+  // Advanced Analytics + GIS hidden for now (kept in code; restore here to re-enable)
 ]
 
 /** Top application bar with primary navigation. */
