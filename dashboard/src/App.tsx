@@ -68,13 +68,11 @@ function App() {
       <Header page={page} onPage={setPage} />
       <div className="flex min-h-0 flex-1">
         <Sidebar
-          year={year}
           metric={metric}
           open={sidebarOpen}
           onToggle={() => setSidebarOpen((v) => !v)}
           classMethod={classMethod}
           onClassMethod={setClassMethod}
-          onYear={setYear}
           onMetric={setMetric}
           onReset={resetFilters}
           canReset={!isDefault}

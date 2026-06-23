@@ -62,10 +62,6 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
               >
                 {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
               </select>
-              <select value={month} onChange={(e) => onMonth(Number(e.target.value))} className={SELECT} aria-label="Month">
-                <option value={-1}>Whole year</option>
-                {MONTHS.map((m, i) => (i <= lastMonthIdx(year) ? <option key={m} value={i}>{m}</option> : null))}
-              </select>
             </>
           )}
           <div className="w-48">
@@ -74,6 +70,35 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
           <Toggle view={view} onView={onView} />
         </div>
       </div>
+
+      {view === 'map' && (
+        <div className="flex items-center gap-4 border-b border-line px-6 py-2.5">
+          <span className="shrink-0 text-[0.78rem] font-600 uppercase tracking-wide text-ink-faint">Month</span>
+          <button
+            onClick={() => onMonth(-1)}
+            aria-pressed={month < 0}
+            className={`shrink-0 rounded-md px-2.5 py-1 text-[0.8rem] font-600 transition-colors ${
+              month < 0 ? 'bg-brand text-surface' : 'text-ink-soft hover:bg-brand-soft hover:text-brand-strong'
+            }`}
+          >
+            Whole year
+          </button>
+          <input
+            type="range"
+            min={-1}
+            max={lastMonthIdx(year)}
+            step={1}
+            value={month}
+            onChange={(e) => onMonth(Number(e.target.value))}
+            aria-label="Month"
+            aria-valuetext={month < 0 ? 'Whole year' : `${MONTHS[month]} ${year}`}
+            className="h-2 flex-1 cursor-pointer accent-brand"
+          />
+          <span className="w-28 shrink-0 text-right font-mono text-[0.95rem] font-600 text-ink">
+            {month < 0 ? 'Whole year' : `${MONTHS[month]} ${year}`}
+          </span>
+        </div>
+      )}
 
       <div className="relative min-h-0 flex-1 p-0">
         {view === 'map' ? (

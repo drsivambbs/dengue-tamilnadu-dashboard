@@ -1,22 +1,20 @@
 import { Panel } from './Panel'
 import { downloadCsv } from '../export'
-import { CLASS_METHODS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
+import { CLASS_METHODS, METRICS, type ClassMethod, type Metric } from '../types'
 
 interface Props {
-  year: Year
   metric: Metric
   open: boolean
   classMethod: ClassMethod
   onToggle: () => void
   onClassMethod: (m: ClassMethod) => void
-  onYear: (y: Year) => void
   onMetric: (m: Metric) => void
   onReset: () => void
   canReset: boolean
 }
 
 /** The "workbench" — the persistent control bench on the left. */
-export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMethod, onYear, onMetric, onReset, canReset }: Props) {
+export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, onMetric, onReset, canReset }: Props) {
   if (!open) {
     return (
       <aside className="flex w-12 shrink-0 flex-col items-center border-r border-line-strong bg-surface py-3" aria-label="Dashboard controls (collapsed)">
@@ -71,30 +69,7 @@ export function Sidebar({ year, metric, open, classMethod, onToggle, onClassMeth
 
       {/* VIEW ----------------------------------------------------------- */}
       <Panel title="View">
-        <label className="mb-2 block text-[0.9rem] font-600 text-ink">Year</label>
-        <div className="grid grid-cols-3 gap-1.5 rounded-xl bg-panel p-1.5" role="group" aria-label="Select year">
-          {YEARS.map((y) => {
-            const active = y === year
-            return (
-              <button
-                key={y}
-                onClick={() => onYear(y)}
-                aria-pressed={active}
-                className={`rounded-lg py-2.5 text-[0.95rem] font-600 transition-colors ${
-                  active
-                    ? 'bg-brand text-surface shadow-sm'
-                    : 'text-ink-soft hover:bg-brand-soft hover:text-brand-strong'
-                }`}
-              >
-                {y}
-                {y === 2026 && <span className="ml-1 align-super text-[0.6rem]">*</span>}
-              </button>
-            )
-          })}
-        </div>
-        <p className="mt-2 text-[0.78rem] text-ink-faint">* 2026 is partial (Jan–Jun)</p>
-
-        <label className="mb-2 mt-5 block text-[0.9rem] font-600 text-ink">Metric</label>
+        <label className="mb-2 block text-[0.9rem] font-600 text-ink">Metric</label>
         <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Select metric">
           {METRICS.map((m) => {
             const active = m.id === metric
