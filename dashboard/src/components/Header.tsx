@@ -12,18 +12,16 @@ export function Header({ page, onPage }: { page: Page; onPage: (p: Page) => void
   return (
     <header className="flex items-center justify-between gap-6 border-b border-line-strong bg-surface px-7 py-3 shadow-[0_1px_0_rgba(21,33,46,0.04)]">
       <div className="flex items-center gap-4">
-        {/* Simple emblem mark (placeholder for an institutional logo later) */}
-        <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand text-surface shadow-sm">
-          <svg viewBox="0 0 24 24" className="h-6 w-6" fill="none" aria-hidden="true">
-            <path
-              d="M12 2C8 6 5 9 5 13a7 7 0 0014 0c0-4-3-7-7-11z"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </div>
+        {/* Directorate of Public Health & Preventive Medicine emblem */}
+        <img
+          src="/dph.png"
+          alt="Directorate of Public Health & Preventive Medicine, Tamil Nadu"
+          className="h-12 w-12 shrink-0"
+        />
         <div>
+          <p className="text-[0.7rem] font-600 uppercase tracking-[0.08em] text-ink-faint">
+            Government of Tamil Nadu · Directorate of Public Health &amp; Preventive Medicine
+          </p>
           <h1 className="font-serif text-[1.35rem] font-600 leading-tight text-ink">
             Tamil Nadu Dengue Surveillance
           </h1>
