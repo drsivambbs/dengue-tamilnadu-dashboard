@@ -18,14 +18,27 @@ echo "Project=$PROJECT  Location=$LOCATION  Bucket=$BUCKET"
 bq --location="$LOCATION" mk --dataset --description "Tamil Nadu dengue surveillance" "$PROJECT:$DS" || true
 gcloud storage buckets create "gs://$BUCKET" --location="$LOCATION" --uniform-bucket-level-access || true
 
-# Tables
-bq --location="$LOCATION" load --source_format=CSV --skip_leading_rows=1 --replace \
-  "$DS.district_year" "$DIR/district_year.csv" \
-  district:STRING,year:INTEGER,cases:INTEGER,deaths:INTEGER,population:INTEGER,attack_rate:FLOAT,cfr:FLOAT
-
+# Base tables (source of truth): monthly counts + annual population
 bq --location="$LOCATION" load --source_format=CSV --skip_leading_rows=1 --replace \
   "$DS.monthly" "$DIR/monthly.csv" \
   district:STRING,year:INTEGER,month:INTEGER,cases:INTEGER,deaths:INTEGER
+
+bq --location="$LOCATION" load --source_format=CSV --skip_leading_rows=1 --replace \
+  "$DS.population" "$DIR/population.csv" \
+  district:STRING,year:INTEGER,population:INTEGER
+
+# district_year is DERIVED from monthly + population (always consistent)
+bq --location="$LOCATION" query --use_legacy_sql=false \
+"CREATE OR REPLACE VIEW \`$PROJECT.$DS.district_year\` AS
+ SELECT m.district, m.year,
+        SUM(m.cases)  AS cases,
+        SUM(m.deaths) AS deaths,
+        ANY_VALUE(p.population) AS population,
+        ROUND(SAFE_DIVIDE(SUM(m.cases),  ANY_VALUE(p.population)) * 100000, 1) AS attack_rate,
+        ROUND(SAFE_DIVIDE(SUM(m.deaths), SUM(m.cases)) * 100, 2) AS cfr
+ FROM \`$PROJECT.$DS.monthly\` m
+ LEFT JOIN \`$PROJECT.$DS.population\` p USING (district, year)
+ GROUP BY m.district, m.year"
 
 bq --location="$LOCATION" load --source_format=CSV --skip_leading_rows=1 --replace \
   "$DS.weather_monthly" "$DIR/weather_monthly.csv" \

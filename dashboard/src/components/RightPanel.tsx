@@ -1,7 +1,7 @@
 import { KpiCards } from './KpiCards'
 import { DistrictRanking } from './DistrictRanking'
 import { isPartial } from '../dataService'
-import type { Metric, Year } from '../types'
+import { MONTHS, type Metric, type Year } from '../types'
 
 /**
  * Right "summary" rail — scope KPIs + district ranking. Collapsible like the
@@ -14,6 +14,7 @@ export function RightPanel({
   open,
   onToggle,
   onSelect,
+  month = -1,
 }: {
   year: Year
   metric: Metric
@@ -21,8 +22,10 @@ export function RightPanel({
   open: boolean
   onToggle: () => void
   onSelect: (d: string | null) => void
+  month?: number
 }) {
   const partial = isPartial(year)
+  const monthly = month >= 0
 
   if (!open) {
     return (
@@ -50,8 +53,8 @@ export function RightPanel({
         <div>
           <h2 className="font-serif text-[1.05rem] font-600 text-ink">Summary</h2>
           <p className="text-[0.82rem] text-ink-soft">
-            {selected ?? 'Tamil Nadu'} · {year}
-            {partial && <span className="text-ink-faint"> (Jan–Jun)</span>}
+            {selected ?? 'Tamil Nadu'} · {monthly ? `${MONTHS[month]} ${year}` : year}
+            {partial && !monthly && <span className="text-ink-faint"> (Jan–Jun)</span>}
           </p>
         </div>
         <button
@@ -67,9 +70,9 @@ export function RightPanel({
       </div>
 
       <div className="p-4">
-        <KpiCards year={year} selected={selected} />
+        <KpiCards year={year} selected={selected} month={month} />
       </div>
-      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} />
+      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} month={month} />
     </aside>
   )
 }

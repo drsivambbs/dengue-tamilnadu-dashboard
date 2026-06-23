@@ -85,6 +85,7 @@ function App() {
           year={year}
           metric={metric}
           selected={selected}
+          month={month}
           open={rightOpen}
           onToggle={() => setRightOpen((v) => !v)}
           onSelect={setSelected}

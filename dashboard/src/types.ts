@@ -9,6 +9,8 @@ export type Metric = 'cases' | 'attackRate' | 'deaths' | 'cfr'
 
 export const YEARS: Year[] = [2024, 2025, 2026]
 
+export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+
 export type ClassMethod = 'quantile' | 'jenks' | 'stddev' | 'equal'
 
 export const CLASS_METHODS: { id: ClassMethod; label: string; help: string }[] = [

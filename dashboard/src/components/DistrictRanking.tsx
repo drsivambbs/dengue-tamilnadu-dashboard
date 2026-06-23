@@ -1,28 +1,30 @@
 import { useMemo } from 'react'
-import { getYearValues } from '../dataService'
+import { getYearValues, getMonthValues } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
 import { METRICS, type Metric, type Year } from '../types'
 
-/** Ranked district list for the current metric + year. Click to select. */
+/** Ranked district list for the current metric + year (+ month). Click to select. */
 export function DistrictRanking({
   year,
   metric,
   selected,
   onSelect,
+  month = -1,
 }: {
   year: Year
   metric: Metric
   selected: string | null
   onSelect: (d: string | null) => void
+  month?: number
 }) {
   const label = METRICS.find((m) => m.id === metric)?.label ?? ''
   const fmt = METRIC_CONFIG[metric].format
 
   const ranked = useMemo(() => {
-    const rows = getYearValues(year, metric).sort((a, b) => b.value - a.value)
+    const rows = (month >= 0 ? getMonthValues(year, month, metric) : getYearValues(year, metric)).sort((a, b) => b.value - a.value)
     const max = rows.length ? rows[0].value : 0
     return rows.map((r, i) => ({ ...r, rank: i + 1, frac: max ? r.value / max : 0 }))
-  }, [year, metric])
+  }, [year, metric, month])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col border-t border-line">

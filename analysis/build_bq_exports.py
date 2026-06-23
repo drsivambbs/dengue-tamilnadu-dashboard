@@ -1,10 +1,13 @@
 """Generate flat files for loading into BigQuery from the bundled dashboard data.
 
-Outputs (to analysis/bq_load/):
-  district_year.csv     district, year, cases, deaths, population, attack_rate, cfr
-  monthly.csv           district, year, month, cases, deaths
-  weather_monthly.csv   district, year, month, rain_mm, temp_c
+Base tables (source of truth):
+  monthly.csv           district, year, month, cases, deaths   ← editable counts
+  population.csv        district, year, population             ← annual denominator
+  weather_monthly.csv   district, year, month, rain_mm, temp_c, humidity_pct
   district_geo.geojsonl newline-delimited GeoJSON features (district + geometry)
+
+district_year is derived from monthly + population as a VIEW (see
+load_to_bigquery.sh); district_year.csv is still written for reference / offline use.
 """
 import json, csv
 from _paths import ROOT
@@ -18,7 +21,7 @@ dengue = json.loads((DATA / "dengue.json").read_text(encoding="utf-8"))
 weather = json.loads((DATA / "weather.json").read_text(encoding="utf-8"))
 years = dengue["meta"]["years"]
 
-# 1. district_year
+# 1a. district_year (reference only — BigQuery builds this as a derived VIEW)
 with open(OUT / "district_year.csv", "w", newline="", encoding="utf-8") as f:
     w = csv.writer(f)
     w.writerow(["district", "year", "cases", "deaths", "population", "attack_rate", "cfr"])
@@ -26,6 +29,14 @@ with open(OUT / "district_year.csv", "w", newline="", encoding="utf-8") as f:
         for y in years:
             m = d["metrics"][str(y)]
             w.writerow([d["district"], y, m["cases"], m["deaths"], m["population"], m["attackRate"], m["cfr"]])
+
+# 1b. population (annual denominator — editable base table)
+with open(OUT / "population.csv", "w", newline="", encoding="utf-8") as f:
+    w = csv.writer(f)
+    w.writerow(["district", "year", "population"])
+    for d in dengue["districts"]:
+        for y in years:
+            w.writerow([d["district"], y, d["metrics"][str(y)]["population"]])
 
 # 2. monthly (cases + deaths)
 with open(OUT / "monthly.csv", "w", newline="", encoding="utf-8") as f:

@@ -167,15 +167,39 @@ export function getMonthlyMetric(year: Year, district: string | null, metric: Me
   return deaths.map((d, i) => (cases[i] ? +((d / cases[i]) * 100).toFixed(2) : 0))
 }
 
-/** Year-on-year change in cases vs the previous year, for the scope. */
+/**
+ * Totals for the chosen scope and time window. `month` is a 0-based index
+ * (0 = Jan); pass -1 (or omit) for the whole year. A single month uses the
+ * year's population as the attack-rate denominator.
+ */
+export function getScopeTotalsFor(year: Year, district: string | null, month = -1): DistrictMetric {
+  if (month < 0) return getScopeTotals(year, district)
+  const cases = getMonthlyCases(year, district)[month] ?? 0
+  const deaths = getMonthlyDeaths(year, district)[month] ?? 0
+  const population = getScopeTotals(year, district).population
+  return {
+    cases,
+    deaths,
+    population,
+    attackRate: population ? +((cases / population) * 1e5).toFixed(1) : 0,
+    cfr: cases ? +((deaths / cases) * 100).toFixed(2) : 0,
+  }
+}
+
+/**
+ * Change in cases vs the previous year for the scope. With a month selected it
+ * compares the same month a year earlier (so it stays meaningful for a partial
+ * current year); otherwise it compares full-year totals.
+ */
 export function getYoYChange(
   year: Year,
   district: string | null,
+  month = -1,
 ): { pct: number; prevYear: number } | null {
   const prev = (year - 1) as Year
   if (!db.meta.years.includes(prev)) return null
-  const cur = getScopeTotals(year, district).cases
-  const before = getScopeTotals(prev, district).cases
+  const cur = getScopeTotalsFor(year, district, month).cases
+  const before = getScopeTotalsFor(prev, district, month).cases
   if (!before) return null
   return { pct: ((cur - before) / before) * 100, prevYear: prev }
 }
