@@ -1,7 +1,7 @@
 import { KpiCards } from './KpiCards'
 import { DistrictRanking } from './DistrictRanking'
 import { isPartial } from '../dataService'
-import { MONTHS, type Metric, type Year } from '../types'
+import { MONTHS, type ClassMethod, type Metric, type Year } from '../types'
 
 /**
  * Right "summary" rail — scope KPIs + district ranking. Collapsible like the
@@ -15,6 +15,7 @@ export function RightPanel({
   onToggle,
   onSelect,
   month = -1,
+  classMethod = 'quantile',
 }: {
   year: Year
   metric: Metric
@@ -23,6 +24,7 @@ export function RightPanel({
   onToggle: () => void
   onSelect: (d: string | null) => void
   month?: number
+  classMethod?: ClassMethod
 }) {
   const partial = isPartial(year)
   const monthly = month >= 0
@@ -48,11 +50,11 @@ export function RightPanel({
   }
 
   return (
-    <aside className="flex w-[300px] shrink-0 flex-col overflow-hidden border-l border-line-strong bg-surface" aria-label="Summary">
-      <div className="flex items-start justify-between gap-2 border-b border-line px-5 py-4">
+    <aside className="flex w-[256px] shrink-0 flex-col overflow-hidden border-l border-line-strong bg-surface" aria-label="Summary">
+      <div className="flex items-start justify-between gap-2 border-b border-line px-4 py-2.5">
         <div>
-          <h2 className="font-serif text-[1.05rem] font-600 text-ink">Summary</h2>
-          <p className="text-[0.82rem] text-ink-soft">
+          <h2 className="font-serif text-[1rem] font-600 text-ink">Summary</h2>
+          <p className="text-[0.78rem] text-ink-soft">
             {selected ?? 'Tamil Nadu'} · {monthly ? `${MONTHS[month]} ${year}` : year}
             {partial && !monthly && <span className="text-ink-faint"> (Jan–Jun)</span>}
           </p>
@@ -69,10 +71,10 @@ export function RightPanel({
         </button>
       </div>
 
-      <div className="p-4">
+      <div className="p-2.5">
         <KpiCards year={year} selected={selected} month={month} />
       </div>
-      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} month={month} />
+      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} month={month} classMethod={classMethod} />
     </aside>
   )
 }

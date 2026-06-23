@@ -19,8 +19,8 @@ export function Panel({
   return (
     <details open={defaultOpen} className="group border-b border-line last:border-b-0">
       <summary
-        className="flex cursor-pointer list-none items-center justify-between px-5 py-4
-                   text-[0.78rem] font-600 uppercase tracking-[0.09em] text-ink-soft
+        className="flex cursor-pointer list-none items-center justify-between px-4 py-2.5
+                   text-[0.74rem] font-600 uppercase tracking-[0.08em] text-ink-soft
                    hover:bg-brand-soft/50 focus-visible:bg-brand-soft/60"
       >
         <span>{title}</span>
@@ -33,8 +33,8 @@ export function Panel({
           <path d="M9 6l6 6-6 6" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       </summary>
-      <div className="px-5 pb-5 pt-1">
-        {hint && <p className="mb-3 text-[0.82rem] leading-snug text-ink-faint">{hint}</p>}
+      <div className="px-4 pb-3.5 pt-0.5">
+        {hint && <p className="mb-2.5 text-[0.78rem] leading-snug text-ink-faint">{hint}</p>}
         {children}
       </div>
     </details>

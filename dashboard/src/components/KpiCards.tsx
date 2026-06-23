@@ -11,7 +11,7 @@ export function KpiCards({ year, selected, month = -1 }: { year: Year; selected:
   const periodFoot = monthly ? MONTHS[month] : partial ? `partial · ${partial}` : 'full year'
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="grid grid-cols-2 gap-2">
       <Kpi label="Reported cases" value={num(t.cases)} foot={periodFoot} />
       <Kpi label="Deaths" value={num(t.deaths)} foot={`CFR ${t.cfr.toFixed(2)}%`} />
       <Kpi label="Attack rate" value={t.attackRate.toFixed(1)} foot="per 100,000" />
@@ -23,10 +23,10 @@ export function KpiCards({ year, selected, month = -1 }: { year: Year; selected:
 
 function Kpi({ label, value, foot }: { label: string; value: string; foot: string }) {
   return (
-    <div className="rounded-[var(--radius-panel)] border border-line bg-surface px-4 py-3 shadow-sm">
-      <p className="text-[0.74rem] font-600 uppercase tracking-[0.06em] text-ink-faint">{label}</p>
-      <p className="mt-1 font-mono text-[1.55rem] font-600 leading-none text-ink">{value}</p>
-      <p className="mt-1.5 text-[0.76rem] text-ink-faint">{foot}</p>
+    <div className="rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm">
+      <p className="text-[0.66rem] font-600 uppercase tracking-[0.04em] text-ink-faint">{label}</p>
+      <p className="mt-0.5 font-mono text-[1.2rem] font-600 leading-none text-ink">{value}</p>
+      <p className="mt-1 text-[0.68rem] text-ink-faint">{foot}</p>
     </div>
   )
 }
@@ -47,10 +47,10 @@ function YoYKpi({
   // For a partial year, a YoY vs a full previous year would mislead.
   if (partial || !yoy) {
     return (
-      <div className="rounded-[var(--radius-panel)] border border-line bg-surface px-4 py-3 shadow-sm">
-        <p className="text-[0.74rem] font-600 uppercase tracking-[0.06em] text-ink-faint">Change vs previous year</p>
-        <p className="mt-1 font-mono text-[1.55rem] font-600 leading-none text-ink-faint/70">—</p>
-        <p className="mt-1.5 text-[0.76rem] text-ink-faint">{partial ? 'not comparable (partial)' : 'no prior year'}</p>
+      <div className="rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm">
+        <p className="text-[0.66rem] font-600 uppercase tracking-[0.04em] text-ink-faint">Change vs prev. year</p>
+        <p className="mt-0.5 font-mono text-[1.2rem] font-600 leading-none text-ink-faint/70">—</p>
+        <p className="mt-1 text-[0.68rem] text-ink-faint">{partial ? 'not comparable (partial)' : 'no prior year'}</p>
       </div>
     )
   }
@@ -58,15 +58,15 @@ function YoYKpi({
   const color = down ? 'text-good' : 'text-alert'
   const context = monthly ? `${monthLabel} ${year - 1}` : `${year - 1}`
   return (
-    <div className="rounded-[var(--radius-panel)] border border-line bg-surface px-4 py-3 shadow-sm">
-      <p className="text-[0.74rem] font-600 uppercase tracking-[0.06em] text-ink-faint">
-        Change vs {monthly ? `${monthLabel} ${yoy.prevYear}` : yoy.prevYear}
+    <div className="rounded-lg border border-line bg-surface px-2.5 py-2 shadow-sm">
+      <p className="text-[0.66rem] font-600 uppercase tracking-[0.04em] text-ink-faint">
+        vs {monthly ? `${monthLabel} ${yoy.prevYear}` : yoy.prevYear}
       </p>
-      <p className={`mt-1 flex items-baseline gap-1.5 font-mono text-[1.55rem] font-600 leading-none ${color}`}>
+      <p className={`mt-0.5 flex items-baseline gap-1 font-mono text-[1.2rem] font-600 leading-none ${color}`}>
         <span aria-hidden="true">{down ? '▼' : '▲'}</span>
         {Math.abs(yoy.pct).toFixed(0)}%
       </p>
-      <p className="mt-1.5 text-[0.76rem] text-ink-faint">{down ? 'fewer' : 'more'} cases than {context}</p>
+      <p className="mt-1 text-[0.68rem] text-ink-faint">{down ? 'fewer' : 'more'} than {context}</p>
     </div>
   )
 }

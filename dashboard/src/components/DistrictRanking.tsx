@@ -1,38 +1,42 @@
 import { useMemo } from 'react'
 import { getYearValues, getMonthValues } from '../dataService'
-import { METRIC_CONFIG } from '../metrics'
-import { METRICS, type Metric, type Year } from '../types'
+import { classify } from '../classify'
+import { colorForValue, textOn, METRIC_CONFIG } from '../metrics'
+import { METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
-/** Ranked district list for the current metric + year (+ month). Click to select. */
+/** Ranked district list for the current metric + year (+ month). Each district's
+ *  name carries its map colour so the list reads like the choropleth. */
 export function DistrictRanking({
   year,
   metric,
   selected,
   onSelect,
   month = -1,
+  classMethod = 'quantile',
 }: {
   year: Year
   metric: Metric
   selected: string | null
   onSelect: (d: string | null) => void
   month?: number
+  classMethod?: ClassMethod
 }) {
   const label = METRICS.find((m) => m.id === metric)?.label ?? ''
   const fmt = METRIC_CONFIG[metric].format
 
   const ranked = useMemo(() => {
     const rows = (month >= 0 ? getMonthValues(year, month, metric) : getYearValues(year, metric)).sort((a, b) => b.value - a.value)
-    const max = rows.length ? rows[0].value : 0
-    return rows.map((r, i) => ({ ...r, rank: i + 1, frac: max ? r.value / max : 0 }))
-  }, [year, metric, month])
+    const breaks = classify(rows.map((r) => r.value), classMethod)
+    return rows.map((r, i) => ({ ...r, rank: i + 1, color: colorForValue(r.value, breaks) }))
+  }, [year, metric, month, classMethod])
 
   return (
     <div className="flex min-h-0 flex-1 flex-col border-t border-line">
-      <div className="flex items-baseline justify-between px-5 pb-1.5 pt-3.5">
-        <h3 className="font-serif text-[1rem] font-600 text-ink">District ranking</h3>
-        <span className="text-[0.76rem] text-ink-faint">{label}</span>
+      <div className="flex items-baseline justify-between px-4 pb-1 pt-2.5">
+        <h3 className="font-serif text-[0.95rem] font-600 text-ink">District ranking</h3>
+        <span className="text-[0.72rem] text-ink-faint">{label}</span>
       </div>
-      <ol className="min-h-0 flex-1 overflow-y-auto px-2.5 pb-3">
+      <ol className="min-h-0 flex-1 overflow-y-auto px-2 pb-2">
         {ranked.map((r) => {
           const active = r.district === selected
           return (
@@ -40,20 +44,18 @@ export function DistrictRanking({
               <button
                 onClick={() => onSelect(active ? null : r.district)}
                 aria-pressed={active}
-                className={`relative flex w-full items-center gap-2.5 overflow-hidden rounded-md px-2.5 py-1.5 text-left transition-colors ${
-                  active ? 'bg-brand-soft' : 'hover:bg-panel'
+                className={`flex w-full items-center gap-2 rounded-md py-0.5 pr-1 text-left transition-[outline] ${
+                  active ? 'outline outline-2 outline-brand' : ''
                 }`}
               >
+                <span className="w-4 shrink-0 text-right font-mono text-[0.72rem] text-ink-faint">{r.rank}</span>
                 <span
-                  className="absolute inset-y-0 left-0 bg-brand/10"
-                  style={{ width: `${Math.max(r.frac * 100, 1.5)}%` }}
-                  aria-hidden="true"
-                />
-                <span className="relative w-5 shrink-0 text-right font-mono text-[0.78rem] text-ink-faint">{r.rank}</span>
-                <span className={`relative min-w-0 flex-1 truncate text-[0.86rem] ${active ? 'font-600 text-brand-strong' : 'text-ink'}`}>
+                  className="min-w-0 flex-1 truncate rounded px-2 py-1 text-[0.82rem] font-600"
+                  style={{ background: r.color, color: textOn(r.color) }}
+                >
                   {r.district}
                 </span>
-                <span className="relative shrink-0 font-mono text-[0.82rem] font-600 text-ink">{fmt(r.value)}</span>
+                <span className="shrink-0 font-mono text-[0.8rem] font-600 text-ink">{fmt(r.value)}</span>
               </button>
             </li>
           )

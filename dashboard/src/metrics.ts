@@ -44,6 +44,26 @@ export function legendRows(breaks: number[], metric: Metric): { color: string; l
   return rows
 }
 
+/** The choropleth colour a value falls into — mirrors `colorExpression`'s step
+ *  buckets so other views (e.g. the ranking list) match the map exactly. */
+export function colorForValue(value: number | null | undefined, breaks: number[]): string {
+  if (value == null || !Number.isFinite(value)) return NO_DATA
+  const colors = sampleColors(breaks.length + 1)
+  let i = 0
+  while (i < breaks.length && value >= breaks[i]) i++
+  return colors[i]
+}
+
+/** Readable text colour (dark ink or white) for a given background hex. */
+export function textOn(hex: string): string {
+  const c = hex.replace('#', '')
+  const r = parseInt(c.slice(0, 2), 16)
+  const g = parseInt(c.slice(2, 4), 16)
+  const b = parseInt(c.slice(4, 6), 16)
+  const lum = (0.299 * r + 0.587 * g + 0.114 * b) / 255
+  return lum > 0.6 ? '#15212e' : '#ffffff'
+}
+
 /** MapLibre step expression colouring a feature by its `value` property,
  *  using the supplied (already strictly-increasing) breaks. */
 export function colorExpression(breaks: number[]): unknown[] {

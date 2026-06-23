@@ -37,13 +37,13 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
 
   return (
     <aside
-      className="flex w-[320px] shrink-0 flex-col overflow-y-auto border-r border-line-strong bg-surface"
+      className="flex w-[256px] shrink-0 flex-col overflow-y-auto border-r border-line-strong bg-surface"
       aria-label="Dashboard controls"
     >
-      <div className="flex items-start justify-between gap-2 border-b border-line px-5 py-4">
+      <div className="flex items-start justify-between gap-2 border-b border-line px-4 py-2.5">
         <div>
-          <h2 className="font-serif text-[1.05rem] font-600 text-ink">Workbench</h2>
-          <p className="text-[0.82rem] text-ink-soft">Choose what to show on the map</p>
+          <h2 className="font-serif text-[1rem] font-600 text-ink">Workbench</h2>
+          <p className="text-[0.78rem] text-ink-soft">Choose what to show on the map</p>
         </div>
         <div className="flex shrink-0 items-center gap-1">
           <button
@@ -69,8 +69,8 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
 
       {/* VIEW ----------------------------------------------------------- */}
       <Panel title="View">
-        <label className="mb-2 block text-[0.9rem] font-600 text-ink">Metric</label>
-        <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Select metric">
+        <label className="mb-1.5 block text-[0.85rem] font-600 text-ink">Metric</label>
+        <div className="flex flex-col gap-1" role="radiogroup" aria-label="Select metric">
           {METRICS.map((m) => {
             const active = m.id === metric
             return (
@@ -79,22 +79,22 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
                 role="radio"
                 aria-checked={active}
                 onClick={() => onMetric(m.id)}
-                className={`flex items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-colors ${
+                className={`flex items-center gap-2.5 rounded-lg border px-2.5 py-1.5 text-left transition-colors ${
                   active
                     ? 'border-brand bg-brand-soft'
                     : 'border-line bg-surface hover:border-line-strong hover:bg-panel'
                 }`}
               >
                 <span
-                  className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 ${
+                  className={`flex h-4 w-4 shrink-0 items-center justify-center rounded-full border-2 ${
                     active ? 'border-brand' : 'border-line-strong'
                   }`}
                 >
-                  {active && <span className="h-2.5 w-2.5 rounded-full bg-brand" />}
+                  {active && <span className="h-2 w-2 rounded-full bg-brand" />}
                 </span>
                 <span>
-                  <span className="block text-[0.95rem] font-600 text-ink">{m.label}</span>
-                  <span className="block text-[0.8rem] text-ink-soft">{m.help}</span>
+                  <span className="block text-[0.88rem] font-600 text-ink">{m.label}</span>
+                  <span className="block text-[0.74rem] leading-snug text-ink-soft">{m.help}</span>
                 </span>
               </button>
             )
@@ -104,7 +104,7 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
 
       {/* CLASSIFICATION ------------------------------------------------- */}
       <Panel title="Classification" hint="How the map colours are split into classes (recomputed from the data)." defaultOpen={false}>
-        <div className="flex flex-col gap-1.5" role="radiogroup" aria-label="Classification method">
+        <div className="flex flex-col gap-1" role="radiogroup" aria-label="Classification method">
           {CLASS_METHODS.map((c) => {
             const active = c.id === classMethod
             return (
@@ -113,14 +113,14 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
                 role="radio"
                 aria-checked={active}
                 onClick={() => onClassMethod(c.id)}
-                className={`rounded-lg border px-3.5 py-2.5 text-left transition-colors ${
+                className={`rounded-lg border px-2.5 py-1.5 text-left transition-colors ${
                   active ? 'border-brand bg-brand-soft' : 'border-line bg-surface hover:border-line-strong hover:bg-panel'
                 }`}
               >
-                <span className={`block text-[0.92rem] font-600 ${active ? 'text-brand-strong' : 'text-ink'}`}>
+                <span className={`block text-[0.86rem] font-600 ${active ? 'text-brand-strong' : 'text-ink'}`}>
                   {c.label}
                 </span>
-                <span className="block text-[0.76rem] leading-snug text-ink-faint">{c.help}</span>
+                <span className="block text-[0.73rem] leading-snug text-ink-faint">{c.help}</span>
               </button>
             )
           })}
@@ -131,11 +131,11 @@ export function Sidebar({ metric, open, classMethod, onToggle, onClassMethod, on
       <Panel title="Export" defaultOpen={false}>
         <button
           onClick={downloadCsv}
-          className="w-full rounded-lg border border-line bg-surface py-3 text-[0.9rem] font-600 text-ink-soft transition-colors hover:border-line-strong hover:text-brand-strong"
+          className="w-full rounded-lg border border-line bg-surface py-2 text-[0.86rem] font-600 text-ink-soft transition-colors hover:border-line-strong hover:text-brand-strong"
         >
           Download data (CSV)
         </button>
-        <p className="mt-2 text-[0.78rem] text-ink-faint">Map image (PNG): use the PNG button on the map.</p>
+        <p className="mt-1.5 text-[0.74rem] text-ink-faint">Map image (PNG): use the PNG button on the map.</p>
       </Panel>
     </aside>
   )
