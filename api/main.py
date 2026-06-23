@@ -86,15 +86,24 @@ def health():
 
 
 @app.get("/api/rows")
-def list_rows(year: Optional[int] = None, month: Optional[int] = None):
+def list_rows(year: Optional[int] = None, month: Optional[int] = None, months: bool = False):
     """Rows with derived attack-rate / CFR that respond to the month filter.
 
-    `month` in 1-12 → per-month rows; omitted/0 → annual rollup.
+    - month in 1-12 → just that month, one row per district
+    - months=true   → every month expanded, one row per district-month
+    - otherwise     → annual rollup (one row per district-year, month=null)
     """
-    where_year = "WHERE m.year=@y" if year else ""
     y = ("INT64", year or 0)
 
-    if month and 1 <= month <= 12:
+    if months or (month and 1 <= month <= 12):
+        params = {"y": y}
+        clauses = []
+        if year:
+            clauses.append("m.year=@y")
+        if month and 1 <= month <= 12:
+            clauses.append("m.month=@mo")
+            params["mo"] = ("INT64", month)
+        where = ("WHERE " + " AND ".join(clauses)) if clauses else ""
         sql = f"""
         SELECT m.district, m.year, m.month, m.cases, m.deaths,
                p.population,
@@ -102,11 +111,12 @@ def list_rows(year: Optional[int] = None, month: Optional[int] = None):
                ROUND(SAFE_DIVIDE(m.deaths, m.cases) * 100, 2) AS cfr
         FROM `{MONTHLY}` m
         LEFT JOIN `{POP}` p USING (district, year)
-        WHERE m.month=@mo {('AND m.year=@y' if year else '')}
-        ORDER BY m.district, m.year
+        {where}
+        ORDER BY m.district, m.year, m.month
         """
-        rows = client.query(sql, job_config=_params(mo=("INT64", month), y=y)).result()
+        rows = client.query(sql, job_config=_params(**params)).result()
     else:
+        where_year = "WHERE m.year=@y" if year else ""
         sql = f"""
         SELECT m.district, m.year, NULL AS month,
                SUM(m.cases) AS cases, SUM(m.deaths) AS deaths,

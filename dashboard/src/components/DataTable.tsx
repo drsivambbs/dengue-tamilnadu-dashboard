@@ -18,18 +18,23 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
   const [err, setErr] = useState('')
   const [query, setQuery] = useState('')
   const [yearFilter, setYearFilter] = useState<Year | 'all'>('all')
-  const [monthFilter, setMonthFilter] = useState<number | 'all'>('all') // 1-12 or 'all' = whole year
+  // 'months' = every month (default), 1-12 = one month, 'year' = annual totals
+  const [monthFilter, setMonthFilter] = useState<number | 'months' | 'year'>('months')
   const [editKey, setEditKey] = useState<string | null>(null)
   const [edit, setEdit] = useState<{ cases: string; deaths: string; population: string }>({ cases: '', deaths: '', population: '' })
   const [draft, setDraft] = useState<Draft>(emptyDraft())
   const [busy, setBusy] = useState(false)
 
-  const monthly = monthFilter !== 'all' // per-month grain vs annual rollup
+  const monthly = monthFilter !== 'year' // per-month grain vs annual rollup
 
   const load = () => {
     setLoading(true)
-    dataApi
-      .list(yearFilter === 'all' ? undefined : yearFilter, monthly ? (monthFilter as number) : undefined)
+    const yr = yearFilter === 'all' ? undefined : yearFilter
+    const req =
+      monthFilter === 'year' ? dataApi.list(yr)
+      : monthFilter === 'months' ? dataApi.list(yr, undefined, true)
+      : dataApi.list(yr, monthFilter)
+    req
       .then((d) => { setRows(d); setErr('') })
       .catch((e) => setErr(String(e.message || e)))
       .finally(() => setLoading(false))
@@ -41,7 +46,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
     const q = query.trim().toLowerCase()
     return rows
       .filter((r) => !q || r.district.toLowerCase().includes(q))
-      .sort((a, b) => a.district.localeCompare(b.district) || a.year - b.year)
+      .sort((a, b) => a.district.localeCompare(b.district) || a.year - b.year || (a.month ?? 0) - (b.month ?? 0))
   }, [rows, query])
 
   const keyOf = (r: ApiRow) => `${r.district}|${r.year}|${r.month ?? 'Y'}`
@@ -93,9 +98,9 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
           <div>
             <h2 className="font-serif text-[1.15rem] font-600 text-ink">Dataset (live · editable)</h2>
             <p className="text-[0.8rem] text-ink-soft">
-              {monthly
-                ? `Per-month figures · ${MONTHS[(monthFilter as number) - 1]} · edit cases & deaths`
-                : 'Annual totals (sum of months) · edit population'} · BigQuery via Cloud Run
+              {monthFilter === 'year'
+                ? 'Annual totals (sum of months) · edit population'
+                : `Per-month figures · ${monthFilter === 'months' ? 'all months' : MONTHS[(monthFilter as number) - 1]} · edit cases & deaths`} · BigQuery via Cloud Run
             </p>
           </div>
           <span className={`rounded-full px-2.5 py-1 text-[0.72rem] font-600 ${err ? 'bg-alert/15 text-alert' : 'bg-good/15 text-good'}`}>
@@ -111,7 +116,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
                 key={y}
                 onClick={() => {
                   setYearFilter(y)
-                  if (monthly && y !== 'all' && (monthFilter as number) > lastMonth(y)) setMonthFilter('all')
+                  if (typeof monthFilter === 'number' && y !== 'all' && monthFilter > lastMonth(y)) setMonthFilter('months')
                 }}
                 className={`rounded-md px-3 py-1.5 text-[0.85rem] font-600 ${y === yearFilter ? 'bg-brand text-surface' : 'text-ink-soft hover:text-brand-strong'}`}
               >{y === 'all' ? 'All' : y}</button>
@@ -121,11 +126,15 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
           <label className="text-[0.78rem] font-600 uppercase tracking-wide text-ink-faint">Month</label>
           <select
             value={monthFilter}
-            onChange={(e) => setMonthFilter(e.target.value === 'all' ? 'all' : Number(e.target.value))}
+            onChange={(e) => {
+              const v = e.target.value
+              setMonthFilter(v === 'months' || v === 'year' ? v : Number(v))
+            }}
             className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none"
             aria-label="Month"
           >
-            <option value="all">Whole year</option>
+            <option value="months">All months</option>
+            <option value="year">Whole year (totals)</option>
             {monthOptions.map((m) => <option key={m} value={m}>{MONTHS[m - 1]}</option>)}
           </select>
         </div>

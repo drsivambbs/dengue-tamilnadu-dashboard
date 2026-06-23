@@ -54,11 +54,15 @@ const post = (path: string, body: unknown, method = 'POST') =>
 
 export const dataApi = {
   url: API_URL,
-  /** month omitted → annual rollup; month 1-12 → per-month rows. */
-  list: (year?: number, month?: number): Promise<ApiRow[]> => {
+  /**
+   * month 1-12 → that month; allMonths → every month expanded (one row per
+   * district-month); neither → annual rollup (month=null).
+   */
+  list: (year?: number, month?: number, allMonths?: boolean): Promise<ApiRow[]> => {
     const q = new URLSearchParams()
     if (year) q.set('year', String(year))
     if (month) q.set('month', String(month))
+    if (allMonths) q.set('months', 'true')
     const qs = q.toString()
     return fetch(`${API_URL}/api/rows${qs ? `?${qs}` : ''}`).then(handle)
   },
