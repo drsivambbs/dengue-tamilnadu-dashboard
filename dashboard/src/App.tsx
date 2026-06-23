@@ -4,6 +4,7 @@ import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { RightPanel } from './components/RightPanel'
 import { DataTable } from './components/DataTable'
+import { PopulationTab } from './components/PopulationTab'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
 import { GisDashboard } from './components/GisDashboard'
 import type { ClassMethod, Metric, Page, Year } from './types'
@@ -41,6 +42,15 @@ function App() {
             setPage('dashboard')
           }}
         />
+      </div>
+    )
+  }
+
+  if (page === 'population') {
+    return (
+      <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+        <Header page={page} onPage={setPage} />
+        <PopulationTab />
       </div>
     )
   }

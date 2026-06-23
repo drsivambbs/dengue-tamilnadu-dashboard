@@ -33,6 +33,21 @@ export interface PopulationInput {
   population: number
 }
 
+/** A district's 2011 census base + per-district annual growth rate (%). */
+export interface BaseRow {
+  district: string
+  census_2011: number
+  growth_pct: number
+}
+
+/** Effective population for a district-year: projected, or an official override. */
+export interface PopRow {
+  district: string
+  year: number
+  population: number
+  is_override: boolean
+}
+
 // A placeholder until real sign-in is added; sent for the audit trail.
 const userHeader = () => ({ 'X-User-Email': localStorage.getItem('dengue_user') || 'editor@local' })
 
@@ -67,10 +82,21 @@ export const dataApi = {
     return fetch(`${API_URL}/api/rows${qs ? `?${qs}` : ''}`).then(handle)
   },
   saveMonthly: (r: MonthlyInput): Promise<MonthlyInput> => post('/api/monthly', r, 'PUT'),
-  savePopulation: (r: PopulationInput): Promise<PopulationInput> => post('/api/population', r, 'PUT'),
-  addYear: (r: PopulationInput): Promise<PopulationInput> => post('/api/year', r, 'POST'),
+  addYear: (r: { district: string; year: number }): Promise<unknown> => post('/api/year', r, 'POST'),
   removeYear: (district: string, year: number): Promise<unknown> =>
     fetch(`${API_URL}/api/year?district=${encodeURIComponent(district)}&year=${year}`, {
+      method: 'DELETE',
+      headers: { ...userHeader() },
+    }).then(handle),
+
+  // ---- population (2011 census base + per-district growth, with overrides) ----
+  listBase: (): Promise<BaseRow[]> => fetch(`${API_URL}/api/population/base`).then(handle),
+  saveBase: (r: BaseRow): Promise<BaseRow> => post('/api/population/base', r, 'PUT'),
+  listPopulation: (year?: number): Promise<PopRow[]> =>
+    fetch(`${API_URL}/api/population${year ? `?year=${year}` : ''}`).then(handle),
+  saveOverride: (r: PopulationInput): Promise<PopulationInput> => post('/api/population/override', r, 'PUT'),
+  clearOverride: (district: string, year: number): Promise<unknown> =>
+    fetch(`${API_URL}/api/population/override?district=${encodeURIComponent(district)}&year=${year}`, {
       method: 'DELETE',
       headers: { ...userHeader() },
     }).then(handle),

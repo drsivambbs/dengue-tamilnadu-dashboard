@@ -9,8 +9,8 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 // 2026 surveillance is partial (Jan–Jun only)
 const lastMonth = (y: Year | 'all') => (y === 2026 ? 6 : 12)
 
-interface Draft { district: string; year: string; population: string }
-const emptyDraft = (): Draft => ({ district: DISTRICTS[0], year: '2026', population: '' })
+interface Draft { district: string; year: string }
+const emptyDraft = (): Draft => ({ district: DISTRICTS[0], year: '2026' })
 
 export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: Year) => void }) {
   const [rows, setRows] = useState<ApiRow[]>([])
@@ -21,7 +21,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
   // 'months' = every month (default), 1-12 = one month, 'year' = annual totals
   const [monthFilter, setMonthFilter] = useState<number | 'months' | 'year'>('months')
   const [editKey, setEditKey] = useState<string | null>(null)
-  const [edit, setEdit] = useState<{ cases: string; deaths: string; population: string }>({ cases: '', deaths: '', population: '' })
+  const [edit, setEdit] = useState<{ cases: string; deaths: string }>({ cases: '', deaths: '' })
   const [draft, setDraft] = useState<Draft>(emptyDraft())
   const [busy, setBusy] = useState(false)
 
@@ -53,28 +53,23 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
 
   const startEdit = (r: ApiRow) => {
     setEditKey(keyOf(r))
-    setEdit({ cases: String(r.cases), deaths: String(r.deaths), population: String(r.population ?? '') })
+    setEdit({ cases: String(r.cases), deaths: String(r.deaths) })
   }
 
   const saveEdit = async (r: ApiRow) => {
+    if (!r.month) return // only per-month rows are editable here
     setBusy(true); setErr('')
     try {
-      if (monthly && r.month) {
-        await dataApi.saveMonthly({ district: r.district, year: r.year, month: r.month, cases: +edit.cases, deaths: +edit.deaths })
-        const ar = r.population ? +(((+edit.cases) / r.population) * 100000).toFixed(1) : 0
-        const cfr = +edit.cases ? +(((+edit.deaths) / (+edit.cases)) * 100).toFixed(2) : 0
-        setRows((rs) => rs.map((x) => (keyOf(x) === keyOf(r) ? { ...x, cases: +edit.cases, deaths: +edit.deaths, attack_rate: ar, cfr } : x)))
-      } else {
-        await dataApi.savePopulation({ district: r.district, year: r.year, population: +edit.population })
-        const ar = +edit.population ? +((r.cases / +edit.population) * 100000).toFixed(1) : 0
-        setRows((rs) => rs.map((x) => (keyOf(x) === keyOf(r) ? { ...x, population: +edit.population, attack_rate: ar } : x)))
-      }
+      await dataApi.saveMonthly({ district: r.district, year: r.year, month: r.month, cases: +edit.cases, deaths: +edit.deaths })
+      const ar = r.population ? +(((+edit.cases) / r.population) * 100000).toFixed(1) : 0
+      const cfr = +edit.cases ? +(((+edit.deaths) / (+edit.cases)) * 100).toFixed(2) : 0
+      setRows((rs) => rs.map((x) => (keyOf(x) === keyOf(r) ? { ...x, cases: +edit.cases, deaths: +edit.deaths, attack_rate: ar, cfr } : x)))
       setEditKey(null)
     } catch (e) { setErr(String((e as Error).message)) } finally { setBusy(false) }
   }
 
   const del = async (r: ApiRow) => {
-    if (!confirm(`Delete all ${r.district} ${r.year} data (every month + population)?`)) return
+    if (!confirm(`Delete all ${r.district} ${r.year} case data (every month)?`)) return
     setBusy(true); setErr('')
     try { await dataApi.removeYear(r.district, r.year); load() }
     catch (e) { setErr(String((e as Error).message)) } finally { setBusy(false) }
@@ -83,7 +78,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
   const addRow = async () => {
     setBusy(true); setErr('')
     try {
-      await dataApi.addYear({ district: draft.district, year: +draft.year, population: +draft.population })
+      await dataApi.addYear({ district: draft.district, year: +draft.year })
       setDraft(emptyDraft()); load()
     } catch (e) { setErr(String((e as Error).message)) } finally { setBusy(false) }
   }
@@ -99,8 +94,8 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
             <h2 className="font-serif text-[1.15rem] font-600 text-ink">Dataset (live · editable)</h2>
             <p className="text-[0.8rem] text-ink-soft">
               {monthFilter === 'year'
-                ? 'Annual totals (sum of months) · edit population'
-                : `Per-month figures · ${monthFilter === 'months' ? 'all months' : MONTHS[(monthFilter as number) - 1]} · edit cases & deaths`} · BigQuery via Cloud Run
+                ? 'Annual totals (sum of months) · read-only'
+                : `Per-month figures · ${monthFilter === 'months' ? 'all months' : MONTHS[(monthFilter as number) - 1]} · edit cases & deaths`} · population is managed in the Population tab
             </p>
           </div>
           <span className={`rounded-full px-2.5 py-1 text-[0.72rem] font-600 ${err ? 'bg-alert/15 text-alert' : 'bg-good/15 text-good'}`}>
@@ -141,16 +136,15 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
 
         {err && <p className="border-b border-line bg-alert/10 px-5 py-2 text-[0.85rem] text-alert">{err}</p>}
 
-        {/* Add district-year form (seeds population + 12 zero months) */}
+        {/* Add district-year form (seeds 12 zero months; population auto-projects) */}
         <div className="flex flex-wrap items-end gap-2 border-b border-line bg-panel/40 px-5 py-2.5">
           <span className="text-[0.78rem] font-600 uppercase tracking-wide text-ink-faint">Add district-year</span>
           <select value={draft.district} onChange={(e) => setDraft({ ...draft, district: e.target.value })} className="rounded-md border border-line bg-surface px-2 py-1 text-[0.85rem]">
             {DISTRICTS.map((d) => <option key={d}>{d}</option>)}
           </select>
           <NumIn v={draft.year} onChange={(v) => setDraft({ ...draft, year: v })} ph="Year" w="w-16" />
-          <NumIn v={draft.population} onChange={(v) => setDraft({ ...draft, population: v })} ph="Population" w="w-28" />
-          <button onClick={addRow} disabled={busy || !draft.year || !draft.population} className="rounded-md bg-brand px-3.5 py-1.5 text-[0.85rem] font-600 text-surface disabled:opacity-50">Add</button>
-          <span className="text-[0.74rem] text-ink-faint">then enter monthly cases via the month filter</span>
+          <button onClick={addRow} disabled={busy || !draft.year} className="rounded-md bg-brand px-3.5 py-1.5 text-[0.85rem] font-600 text-surface disabled:opacity-50">Add</button>
+          <span className="text-[0.74rem] text-ink-faint">seeds 12 empty months · population auto-projects · then enter cases via the month filter</span>
         </div>
 
         {/* Table */}
@@ -176,8 +170,8 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
                     {/* Cases / Deaths: editable only in per-month mode */}
                     <Cell editing={editing && monthly} v={edit.cases} display={intl(r.cases)} onChange={(v) => setEdit({ ...edit, cases: v })} />
                     <Cell editing={editing && monthly} v={edit.deaths} display={intl(r.deaths)} onChange={(v) => setEdit({ ...edit, deaths: v })} />
-                    {/* Population: editable only in annual mode */}
-                    <Cell editing={editing && !monthly} v={edit.population} display={r.population ? intl(r.population) : '—'} onChange={(v) => setEdit({ ...edit, population: v })} />
+                    {/* Population: read-only (auto-projected; managed in the Population tab) */}
+                    <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{r.population ? intl(r.population) : '—'}</td>
                     <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{r.attack_rate?.toFixed(1) ?? '—'}</td>
                     <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{(r.cfr ?? 0).toFixed(2)}%</td>
                     <td className="border-b border-line px-3 py-1.5 text-right whitespace-nowrap">
@@ -188,7 +182,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
                         </>
                       ) : (
                         <>
-                          <button onClick={() => startEdit(r)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-brand-strong hover:bg-brand-soft">Edit</button>
+                          {monthly && <button onClick={() => startEdit(r)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-brand-strong hover:bg-brand-soft">Edit</button>}
                           {!monthly && <button onClick={() => del(r)} className="ml-1 rounded-md px-2 py-1 text-[0.78rem] font-600 text-alert hover:bg-alert/10">Delete</button>}
                         </>
                       )}
@@ -202,7 +196,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
         </div>
 
         <div className="border-t border-line px-5 py-2 text-[0.78rem] text-ink-faint">
-          {view.length} rows shown · {monthly ? 'editing monthly cases/deaths' : 'editing annual population'} · saved to BigQuery (with an audit log). ⚠ Sign-in &amp; roles to be added before public use.
+          {view.length} rows shown · {monthly ? 'editing monthly cases/deaths' : 'annual totals (read-only)'} · population is auto-projected (Population tab) · saved to BigQuery with an audit log. ⚠ Sign-in &amp; roles to be added before public use.
         </div>
       </section>
     </main>

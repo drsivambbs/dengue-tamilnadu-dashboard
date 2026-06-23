@@ -2,12 +2,12 @@
 
 Base tables (source of truth):
   monthly.csv           district, year, month, cases, deaths   ← editable counts
-  population.csv        district, year, population             ← annual denominator
   weather_monthly.csv   district, year, month, rain_mm, temp_c, humidity_pct
   district_geo.geojsonl newline-delimited GeoJSON features (district + geometry)
 
-district_year is derived from monthly + population as a VIEW (see
-load_to_bigquery.sh); district_year.csv is still written for reference / offline use.
+Population is auto-projected from population_base (see build_population.py) with
+optional overrides; the population and district_year VIEWs are created in
+load_to_bigquery.sh. district_year.csv is still written for reference / offline use.
 """
 import json, csv
 from _paths import ROOT
@@ -30,13 +30,10 @@ with open(OUT / "district_year.csv", "w", newline="", encoding="utf-8") as f:
             m = d["metrics"][str(y)]
             w.writerow([d["district"], y, m["cases"], m["deaths"], m["population"], m["attackRate"], m["cfr"]])
 
-# 1b. population (annual denominator — editable base table)
-with open(OUT / "population.csv", "w", newline="", encoding="utf-8") as f:
-    w = csv.writer(f)
-    w.writerow(["district", "year", "population"])
-    for d in dengue["districts"]:
-        for y in years:
-            w.writerow([d["district"], y, d["metrics"][str(y)]["population"]])
+# NOTE: population is no longer a flat table. It is auto-projected from
+# population_base (2011 census + per-district growth) with optional overrides —
+# see analysis/build_population.py (writes population_base.csv) and the
+# population VIEW created in load_to_bigquery.sh.
 
 # 2. monthly (cases + deaths)
 with open(OUT / "monthly.csv", "w", newline="", encoding="utf-8") as f:
