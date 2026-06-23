@@ -2,11 +2,12 @@ import { useMemo } from 'react'
 import { MapView } from './MapView'
 import { MonthSlider } from './MonthSlider'
 import { EpidemicCurve } from './EpidemicCurve'
+import { DistrictBars } from './DistrictBars'
 import { DistrictSearch } from './DistrictSearch'
 import { listDistricts } from '../dataService'
-import { METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
+import { MONTHS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
 
-export type CanvasView = 'map' | 'trend'
+export type CanvasView = 'map' | 'trend' | 'bars'
 
 const lastMonthIdx = (y: Year) => (y === 2026 ? 5 : 11)
 const SELECT = 'rounded-lg border border-line bg-surface px-2 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
@@ -40,29 +41,38 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
       <div className="relative z-20 flex items-center gap-4 border-b border-line px-6 py-3">
         <div className="flex items-baseline gap-3">
           <h2 className="font-serif text-[1.15rem] font-600 text-ink">
-            {view === 'map' ? `${metricLabel} by district` : TREND_TITLE[metric]}
+            {view === 'trend' ? TREND_TITLE[metric] : `${metricLabel} by district`}
           </h2>
           {view === 'trend' && (
             <span className="text-[0.88rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · 2024–2026</span>
           )}
+          {view === 'bars' && (
+            <span className="text-[0.88rem] text-ink-soft">{month < 0 ? `${year} (whole year)` : `${MONTHS[month]} ${year}`} · ranked</span>
+          )}
         </div>
 
         <div className="ml-auto flex items-center gap-2">
-          {view === 'map' && (
-            <>
-              <select
-                value={year}
-                onChange={(e) => {
-                  const ny = Number(e.target.value) as Year
-                  onYear(ny)
-                  if (month > lastMonthIdx(ny)) onMonth(-1)
-                }}
-                className={SELECT}
-                aria-label="Year"
-              >
-                {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-              </select>
-            </>
+          {(view === 'map' || view === 'bars') && (
+            <select
+              value={year}
+              onChange={(e) => {
+                const ny = Number(e.target.value) as Year
+                onYear(ny)
+                if (month > lastMonthIdx(ny)) onMonth(-1)
+              }}
+              className={SELECT}
+              aria-label="Year"
+            >
+              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          )}
+          {view === 'bars' && (
+            <select value={month} onChange={(e) => onMonth(Number(e.target.value))} className={SELECT} aria-label="Month">
+              <option value={-1}>Whole year</option>
+              {Array.from({ length: lastMonthIdx(year) + 1 }, (_, i) => i).map((i) => (
+                <option key={i} value={i}>{MONTHS[i]}</option>
+              ))}
+            </select>
           )}
           <div className="w-48">
             <DistrictSearch districts={districts} selected={selected} onSelect={onSelect} />
@@ -77,6 +87,8 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
             <MapView year={year} metric={metric} month={month} selected={selected} classMethod={classMethod} onSelect={onSelect} />
             <MonthSlider year={year} month={month} max={lastMonthIdx(year)} onMonth={onMonth} />
           </>
+        ) : view === 'bars' ? (
+          <DistrictBars year={year} month={month} metric={metric} classMethod={classMethod} selected={selected} onSelect={onSelect} />
         ) : (
           <div className="h-full w-full p-4">
             <EpidemicCurve selected={selected} metric={metric} />
@@ -96,6 +108,15 @@ function Toggle({ view, onView }: { view: CanvasView; onView: (v: CanvasView) =>
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
           <path d="M9 4L3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
           <path d="M9 4v14M15 6v14" stroke="currentColor" strokeWidth="1.7" />
+        </svg>
+      ),
+    },
+    {
+      id: 'bars',
+      label: 'Bars',
+      icon: (
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
+          <path d="M5 20V10M12 20V4M19 20v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
       ),
     },
