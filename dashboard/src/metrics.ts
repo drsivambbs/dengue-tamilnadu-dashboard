@@ -1,7 +1,11 @@
 import type { Metric } from './types'
 
-/** Sequential 5-class palette (colour-blind safe, WHO-style). */
-export const PALETTE = ['#ffffcc', '#fed976', '#fd8d3c', '#e31a1c', '#800026']
+/**
+ * Diverging 5-class palette (ColorBrewer RdYlGn, reversed): green = low/good,
+ * yellow = middle, red = high/bad. All dashboard metrics (cases, attack rate,
+ * deaths, CFR) are "higher is worse", so green→red reads good→bad everywhere.
+ */
+export const PALETTE = ['#1a9641', '#a6d96a', '#ffffbf', '#fdae61', '#d7191c']
 export const NO_DATA = '#d9d9d9'
 
 interface MetricConfig {
@@ -21,7 +25,7 @@ export const METRIC_CONFIG: Record<Metric, MetricConfig> = {
 /** Evenly sample `n` colours from the 5-class palette (keeps contrast when
  *  fewer than 5 classes are produced). */
 export function sampleColors(n: number): string[] {
-  if (n <= 1) return [PALETTE[PALETTE.length - 1]]
+  if (n <= 1) return [PALETTE[0]]
   return Array.from({ length: n }, (_, i) =>
     PALETTE[Math.round((i * (PALETTE.length - 1)) / (n - 1))],
   )
