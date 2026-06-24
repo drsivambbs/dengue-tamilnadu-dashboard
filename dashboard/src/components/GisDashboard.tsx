@@ -3,10 +3,10 @@ import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/map
 import type { MapLayerMouseEvent, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { getMonthlyCases, getMonthlyWeather, getRecord, listDistricts } from '../dataService'
+import { getMonthlyCases, getMonthlyWeather, getRecord, listDistricts, YEARS, lastMonthIndex } from '../dataService'
 import { colorExpression, sampleColors } from '../metrics'
 import { classify } from '../classify'
-import { YEARS, type Year } from '../types'
+import { type Year } from '../types'
 
 const BASEMAP: StyleSpecification = {
   version: 8,
@@ -25,7 +25,7 @@ const BASEMAP: StyleSpecification = {
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 const int = (v: number) => Math.round(v).toLocaleString('en-IN')
 const one = (v: number) => v.toFixed(1)
-const lastMonthIdx = (y: Year) => (y === 2026 ? 5 : 11)
+const lastMonthIdx = (y: Year) => lastMonthIndex(y)
 
 type Key = 'cases' | 'attackRate' | 'rain' | 'hum'
 const FIELD: Record<Key, { label: string; unit: string; fmt: (v: number) => string }> = {

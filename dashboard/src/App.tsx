@@ -7,26 +7,28 @@ import { DataTable } from './components/DataTable'
 import { PopulationTab } from './components/PopulationTab'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
 import { GisDashboard } from './components/GisDashboard'
+import { LATEST_YEAR, LATEST_MONTH } from './dataService'
 import type { ClassMethod, Metric, Page, Year } from './types'
 
 function App() {
   const [page, setPage] = useState<Page>('dashboard')
-  const [year, setYear] = useState<Year>(2024)
+  // Default to the most recent period available in the data.
+  const [year, setYear] = useState<Year>(LATEST_YEAR)
   const [metric, setMetric] = useState<Metric>('attackRate')
   const [selected, setSelected] = useState<string | null>(null)
   const [view, setView] = useState<CanvasView>('map')
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [rightOpen, setRightOpen] = useState(true)
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
-  const [month, setMonth] = useState(-1) // -1 = whole year
+  const [month, setMonth] = useState(LATEST_MONTH) // 0-11; latest month with data
 
   // Default filter state + a one-click reset for the dashboard workbench.
-  const isDefault = year === 2024 && metric === 'attackRate' && selected === null && month === -1 && classMethod === 'quantile'
+  const isDefault = year === LATEST_YEAR && metric === 'attackRate' && selected === null && month === LATEST_MONTH && classMethod === 'quantile'
   const resetFilters = () => {
-    setYear(2024)
+    setYear(LATEST_YEAR)
     setMetric('attackRate')
     setSelected(null)
-    setMonth(-1)
+    setMonth(LATEST_MONTH)
     setClassMethod('quantile')
   }
 

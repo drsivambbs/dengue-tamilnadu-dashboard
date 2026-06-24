@@ -1,13 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
 import { dataApi, type ApiRow } from '../dataApi'
-import { listDistricts } from '../dataService'
-import { YEARS, type Year } from '../types'
+import { listDistricts, YEARS, lastMonthIndex } from '../dataService'
+import { MONTHS, type Year } from '../types'
 
 const intl = (v: number) => v.toLocaleString('en-IN')
 const DISTRICTS = listDistricts().slice().sort()
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-// 2026 surveillance is partial (Jan–Jun only)
-const lastMonth = (y: Year | 'all') => (y === 2026 ? 6 : 12)
+// Number of selectable months for a year (partial/current years auto-limit).
+const lastMonth = (y: Year | 'all') => (y === 'all' ? 12 : lastMonthIndex(y) + 1)
 
 interface Draft { district: string; year: string }
 const emptyDraft = (): Draft => ({ district: DISTRICTS[0], year: '2026' })

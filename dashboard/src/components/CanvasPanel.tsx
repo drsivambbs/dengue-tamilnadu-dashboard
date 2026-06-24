@@ -4,12 +4,13 @@ import { MonthSlider } from './MonthSlider'
 import { EpidemicCurve } from './EpidemicCurve'
 import { DistrictBars } from './DistrictBars'
 import { DistrictSearch } from './DistrictSearch'
-import { listDistricts } from '../dataService'
-import { MONTHS, METRICS, YEARS, type ClassMethod, type Metric, type Year } from '../types'
+import { listDistricts, YEARS, lastMonthIndex } from '../dataService'
+import { MONTHS, METRICS, type ClassMethod, type Metric, type Year } from '../types'
 
 export type CanvasView = 'map' | 'trend' | 'bars'
 
-const lastMonthIdx = (y: Year) => (y === 2026 ? 5 : 11)
+const lastMonthIdx = (y: Year) => lastMonthIndex(y)
+const YEAR_RANGE = `${YEARS[0]}–${YEARS[YEARS.length - 1]}`
 const SELECT = 'rounded-lg border border-line bg-surface px-2 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
 
 interface Props {
@@ -36,6 +37,24 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const districts = useMemo(() => listDistricts().slice().sort(), [])
 
+  // Step one month, rolling across year boundaries within the available data.
+  const stepMonth = (delta: number) => {
+    if (month < 0) { onMonth(delta > 0 ? 0 : lastMonthIdx(year)); return }
+    let m = month + delta
+    let y = year
+    if (m > lastMonthIdx(year)) {
+      const ni = YEARS.indexOf(year) + 1
+      if (ni >= YEARS.length) return
+      y = YEARS[ni]; m = 0
+    } else if (m < 0) {
+      const pi = YEARS.indexOf(year) - 1
+      if (pi < 0) return
+      y = YEARS[pi]; m = lastMonthIdx(y)
+    }
+    if (y !== year) onYear(y)
+    onMonth(m)
+  }
+
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-line bg-surface shadow-sm">
       <div className="relative z-20 flex items-center gap-4 border-b border-line px-6 py-3">
@@ -44,7 +63,7 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
             {view === 'trend' ? TREND_TITLE[metric] : `${metricLabel} by district`}
           </h2>
           {view === 'trend' && (
-            <span className="text-[0.88rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · 2024–2026</span>
+            <span className="text-[0.88rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · {YEAR_RANGE}</span>
           )}
           {view === 'bars' && (
             <span className="text-[0.88rem] text-ink-soft">{month < 0 ? `${year} (whole year)` : `${MONTHS[month]} ${year}`} · ranked</span>
@@ -85,7 +104,15 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
         {view === 'map' ? (
           <>
             <MapView year={year} metric={metric} month={month} selected={selected} classMethod={classMethod} onSelect={onSelect} />
-            <MonthSlider year={year} month={month} max={lastMonthIdx(year)} onMonth={onMonth} />
+            <MonthSlider
+              year={year}
+              month={month}
+              max={lastMonthIdx(year)}
+              onMonth={onMonth}
+              onStep={stepMonth}
+              canPrev={!(year === YEARS[0] && month <= 0)}
+              canNext={!(year === YEARS[YEARS.length - 1] && month >= lastMonthIdx(year))}
+            />
           </>
         ) : view === 'bars' ? (
           <DistrictBars year={year} month={month} metric={metric} classMethod={classMethod} selected={selected} onSelect={onSelect} />

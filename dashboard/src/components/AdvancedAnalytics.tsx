@@ -3,10 +3,9 @@ import {
   ComposedChart, Bar, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
   ScatterChart, Scatter, ZAxis,
 } from 'recharts'
-import { getMonthlyCases, getMonthlyWeather, listDistricts } from '../dataService'
+import { getMonthlyCases, getMonthlyWeather, listDistricts, YEARS } from '../dataService'
 import { lagCorrelations, bestLag, lagPairs, pearson } from '../stats'
 import { DistrictSearch } from './DistrictSearch'
-import { YEARS } from '../types'
 import climateModelRaw from '../data/climate_model.json'
 
 interface ModelFactor {

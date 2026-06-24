@@ -42,6 +42,26 @@ export function getAnnualHumidity(year: Year, district: string): number {
 
 export const meta = db.meta
 
+// ---- available years + month extents (derived from the data) ----
+/** Surveillance years present in the data, ascending. */
+export const YEARS: Year[] = [...db.meta.years].sort((a, b) => a - b)
+/** Most recent year in the data. */
+export const LATEST_YEAR: Year = YEARS[YEARS.length - 1]
+
+/** 0-indexed last month that has reported cases in a year (11 for a full year,
+ *  fewer for a partial/current year). Drives sliders, dropdowns and defaults so
+ *  partial years need no hardcoding. */
+export function lastMonthIndex(year: Year): number {
+  const m = db.monthly[String(year)]
+  if (!m) return 11
+  let last = -1
+  for (const rec of Object.values(m)) rec.cases.forEach((c, i) => { if (c > 0) last = Math.max(last, i) })
+  return last < 0 ? 11 : last
+}
+
+/** Latest month with data in the latest year (0-indexed) — the default view. */
+export const LATEST_MONTH: number = lastMonthIndex(LATEST_YEAR)
+
 export function listDistricts(): string[] {
   return db.districts.map((d) => d.district)
 }

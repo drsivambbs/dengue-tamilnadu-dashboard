@@ -3,11 +3,12 @@
 
 export type Page = 'dashboard' | 'analytics' | 'gis' | 'data' | 'population'
 
-export type Year = 2024 | 2025 | 2026
+// A surveillance year. Kept as `number` (not a fixed union) so future years are
+// added by rebuilding dengue.json — no type/code changes. The list of available
+// years (YEARS) and per-year month extents live in dataService, derived from data.
+export type Year = number
 
 export type Metric = 'cases' | 'attackRate' | 'deaths' | 'cfr'
-
-export const YEARS: Year[] = [2024, 2025, 2026]
 
 export const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 

@@ -3,19 +3,20 @@ import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceArea, ReferenceDot, Label,
 } from 'recharts'
-import { getMonthlyCases, getMonthlyMetric, isPartial } from '../dataService'
+import { getMonthlyCases, getMonthlyMetric, isPartial, YEARS } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
-import { YEARS, type Metric } from '../types'
+import { MONTHS, type Metric } from '../types'
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-const SERIES = [
-  { year: 2024, color: '#9aa7b5', width: 2, dash: '5 4' },
-  { year: 2025, color: '#1f5fa6', width: 3, dash: undefined },
-  { year: 2026, color: '#c0392b', width: 3, dash: undefined },
-] as const
+// Year series, derived from the data: latest = red, second-latest = blue, older = grey.
+const SERIES = YEARS.map((year, i) => {
+  const fromEnd = YEARS.length - 1 - i
+  if (fromEnd === 0) return { year, color: '#c0392b', width: 3, dash: undefined as string | undefined }
+  if (fromEnd === 1) return { year, color: '#1f5fa6', width: 3, dash: undefined as string | undefined }
+  return { year, color: '#9aa7b5', width: 2, dash: '5 4' as string | undefined }
+})
 
 // Latest non-partial year — basis for the peak marker and high-season band.
-const LATEST_FULL_YEAR = [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[0]
+const LATEST_FULL_YEAR = [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[YEARS.length - 1]
 
 const Y_LABEL: Record<Metric, string> = {
   cases: 'Reported cases',
@@ -147,7 +148,7 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
             <Tooltip content={Tip as never} cursor={{ stroke: '#b7c4d6', strokeWidth: 1 }} />
 
             {/* Soft fill under the latest full year for emphasis */}
-            <Area type="monotone" dataKey="2025" stroke="none" fill="url(#curveFill)" isAnimationActive={false} />
+            <Area type="monotone" dataKey={String(LATEST_FULL_YEAR)} stroke="none" fill="url(#curveFill)" isAnimationActive={false} />
 
             {SERIES.map((s) => (
               <Line
@@ -181,7 +182,7 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
             <span key={s.year} className="flex items-center gap-1.5 text-[0.85rem] text-ink-soft">
               <span className="inline-block h-0.5 w-5 rounded" style={{ background: s.color }} />
               {s.year}
-              {s.year === 2026 && <span className="text-ink-faint">(Jan–Jun)</span>}
+              {isPartial(s.year) && <span className="text-ink-faint">({isPartial(s.year)})</span>}
             </span>
           ))}
         </div>
