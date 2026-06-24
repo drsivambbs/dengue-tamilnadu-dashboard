@@ -31,8 +31,8 @@ export function DistrictSearch({
 
   return (
     <div className="relative">
-      <div className="flex items-center gap-2 rounded-lg border border-line bg-panel px-3.5 py-3 focus-within:border-brand">
-        <svg viewBox="0 0 24 24" className="h-5 w-5 shrink-0 text-ink-faint" fill="none" aria-hidden="true">
+      <div className="flex items-center gap-2 rounded-lg border border-line bg-surface px-3 py-1.5 focus-within:border-brand">
+        <svg viewBox="0 0 24 24" className="h-4 w-4 shrink-0 text-ink-faint" fill="none" aria-hidden="true">
           <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
           <path d="M20 20l-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
         </svg>
@@ -50,7 +50,7 @@ export function DistrictSearch({
             if (e.key === 'Enter' && matches.length) choose(matches[0])
             if (e.key === 'Escape') setOpen(false)
           }}
-          className="w-full bg-transparent text-[0.95rem] text-ink placeholder:text-ink-faint focus:outline-none"
+          className="w-full bg-transparent text-[0.85rem] font-600 text-ink placeholder:font-400 placeholder:text-ink-faint focus:outline-none"
           aria-label="Search district"
           role="combobox"
           aria-expanded={open}
