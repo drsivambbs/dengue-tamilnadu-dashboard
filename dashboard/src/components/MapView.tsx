@@ -72,9 +72,11 @@ interface Props {
   selected: string | null
   classMethod: ClassMethod
   onSelect: (d: string | null) => void
+  resetSignal?: number // bump to reset the map view (zoom to state)
+  exportSignal?: number // bump to download the map as PNG
 }
 
-export function MapView({ year, metric, month, selected, classMethod, onSelect }: Props) {
+export function MapView({ year, metric, month, selected, classMethod, onSelect, resetSignal = 0, exportSignal = 0 }: Props) {
   const mapRef = useRef<MapRef | null>(null)
   const [geo, setGeo] = useState<FeatureCollection | null>(null)
   const [hover, setHover] = useState<Hover | null>(null)
@@ -107,6 +109,10 @@ export function MapView({ year, metric, month, selected, classMethod, onSelect }
     })
     if (blob) downloadBlob(`tn-dengue-${metric}-${year}.png`, blob)
   }, [breaks, metric, metricLabel, year])
+
+  // Parent-triggered actions (toolbar): reset view + export PNG.
+  useEffect(() => { if (resetSignal) resetView() }, [resetSignal, resetView])
+  useEffect(() => { if (exportSignal) exportPng() }, [exportSignal, exportPng])
 
   useEffect(() => {
     fetch('/tamilnadu_districts.geojson')
@@ -167,34 +173,6 @@ export function MapView({ year, metric, month, selected, classMethod, onSelect }
 
   return (
     <div className="relative h-full w-full">
-        {/* Top-left toolbar: reset + PNG export */}
-        <div className="absolute left-3 top-3 z-10 flex items-center gap-2">
-          <button
-            onClick={resetView}
-            aria-label="Reset map view"
-            title="Reset view"
-            className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 text-[0.85rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
-              <path d="M3 11l9-8 9 8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M5 10v9a1 1 0 001 1h12a1 1 0 001-1v-9" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            Reset
-          </button>
-          <button
-            onClick={exportPng}
-            aria-label="Download map as PNG"
-            title="Download map (PNG)"
-            className="flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-2.5 text-[0.85rem] font-600 text-ink-soft shadow-md hover:border-line-strong hover:text-brand-strong"
-          >
-            <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
-              <path d="M12 3v12m0 0l-4-4m4 4l4-4" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-              <path d="M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
-            PNG
-          </button>
-        </div>
-
         <MapLegend metric={metric} breaks={breaks} method={classMethod} />
         <MapGL
           ref={mapRef}

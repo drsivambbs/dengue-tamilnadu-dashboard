@@ -1,8 +1,6 @@
 import { useState } from 'react'
 import { Header } from './components/Header'
-import { Sidebar } from './components/Sidebar'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
-import { RightPanel } from './components/RightPanel'
 import { DataTable } from './components/DataTable'
 import { PopulationTab } from './components/PopulationTab'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
@@ -26,13 +24,10 @@ function App() {
   const [metric, setMetric] = useState<Metric>('attackRate')
   const [selected, setSelected] = useState<string | null>(null)
   const [view, setView] = useState<CanvasView>('map')
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [rightOpen, setRightOpen] = useState(true)
   const [classMethod, setClassMethod] = useState<ClassMethod>('quantile')
   const [month, setMonth] = useState(LATEST_MONTH) // 0-11; latest month with data
 
-  // Default filter state + a one-click reset for the dashboard workbench.
-  const isDefault = year === LATEST_YEAR && metric === 'attackRate' && selected === null && month === LATEST_MONTH && classMethod === 'quantile'
+  // One-click reset to the default view.
   const resetFilters = () => {
     setYear(LATEST_YEAR)
     setMetric('attackRate')
@@ -88,39 +83,23 @@ function App() {
   return (
     <div key={dataVersion} className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
       <Header page={page} onPage={goPage} />
-      <div className="flex min-h-0 flex-1">
-        <Sidebar
-          metric={metric}
-          open={sidebarOpen}
-          onToggle={() => setSidebarOpen((v) => !v)}
-          classMethod={classMethod}
-          onClassMethod={setClassMethod}
-          onMetric={setMetric}
-          onReset={resetFilters}
-          canReset={!isDefault}
-        />
-        <main className="flex min-w-0 flex-1 flex-col p-4">
-          <CanvasPanel
-            view={view}
-            onView={setView}
-            year={year}
-            month={month}
-            metric={metric}
-            selected={selected}
-            classMethod={classMethod}
-            onYear={setYear}
-            onMonth={setMonth}
-            onSelect={setSelected}
-          />
-        </main>
-        <RightPanel
+      <main className="flex min-h-0 flex-1 flex-col p-4">
+        <CanvasPanel
+          view={view}
+          onView={setView}
           year={year}
-          selected={selected}
           month={month}
-          open={rightOpen}
-          onToggle={() => setRightOpen((v) => !v)}
+          metric={metric}
+          selected={selected}
+          classMethod={classMethod}
+          onYear={setYear}
+          onMonth={setMonth}
+          onMetric={setMetric}
+          onClassMethod={setClassMethod}
+          onSelect={setSelected}
+          onReset={resetFilters}
         />
-      </div>
+      </main>
     </div>
   )
 }

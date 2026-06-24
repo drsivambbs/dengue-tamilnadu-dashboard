@@ -1,16 +1,18 @@
-import { useMemo } from 'react'
+import { useMemo, useState, type ReactNode } from 'react'
 import { MapView } from './MapView'
 import { MonthSlider } from './MonthSlider'
+import { MapKpiStrip } from './MapKpiStrip'
 import { EpidemicCurve } from './EpidemicCurve'
 import { DistrictBars } from './DistrictBars'
 import { DistrictSearch } from './DistrictSearch'
 import { listDistricts, YEARS, lastMonthIndex } from '../dataService'
-import { MONTHS, METRICS, type ClassMethod, type Metric, type Year } from '../types'
+import { downloadCsv } from '../export'
+import { MONTHS, METRICS, CLASS_METHODS, type ClassMethod, type Metric, type Year } from '../types'
 
 export type CanvasView = 'map' | 'trend' | 'bars'
 
 const lastMonthIdx = (y: Year) => lastMonthIndex(y)
-const SELECT = 'rounded-lg border border-line bg-surface px-2 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
+const SELECT = 'rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
 
 interface Props {
   view: CanvasView
@@ -22,7 +24,10 @@ interface Props {
   classMethod: ClassMethod
   onYear: (y: Year) => void
   onMonth: (m: number) => void
+  onMetric: (m: Metric) => void
+  onClassMethod: (m: ClassMethod) => void
   onSelect: (d: string | null) => void
+  onReset: () => void
 }
 
 const TREND_TITLE: Record<Metric, string> = {
@@ -32,10 +37,11 @@ const TREND_TITLE: Record<Metric, string> = {
   cfr: 'Monthly case fatality',
 }
 
-export function CanvasPanel({ view, onView, year, month, metric, selected, classMethod, onYear, onMonth, onSelect }: Props) {
+export function CanvasPanel({ view, onView, year, month, metric, selected, classMethod, onYear, onMonth, onMetric, onClassMethod, onSelect, onReset }: Props) {
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const districts = useMemo(() => listDistricts().slice().sort(), [])
-  const YEAR_RANGE = `${YEARS[0]}–${YEARS[YEARS.length - 1]}`
+  const [resetSignal, setResetSignal] = useState(0)
+  const [exportSignal, setExportSignal] = useState(0)
 
   // Step one month, rolling across year boundaries within the available data.
   const stepMonth = (delta: number) => {
@@ -55,47 +61,78 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
     onMonth(m)
   }
 
+  const resetAll = () => { onReset(); setResetSignal((s) => s + 1) }
+
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-line bg-surface shadow-sm">
-      <div className="relative z-20 flex items-center gap-4 border-b border-line px-6 py-3">
-        <div className="flex items-baseline gap-3">
-          <h2 className="font-serif text-[1.15rem] font-600 text-ink">
-            {view === 'trend' ? TREND_TITLE[metric] : `${metricLabel} by district`}
-          </h2>
-          {view === 'trend' && (
-            <span className="text-[0.88rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · {YEAR_RANGE}</span>
-          )}
-          {view === 'bars' && (
-            <span className="text-[0.88rem] text-ink-soft">{month < 0 ? `${year} (whole year)` : `${MONTHS[month]} ${year}`} · ranked</span>
-          )}
-        </div>
+      <div className="relative z-20 flex flex-wrap items-center gap-2 border-b border-line px-5 py-2.5">
+        <h2 className="mr-1 font-serif text-[1.1rem] font-600 text-ink">
+          {view === 'trend' ? TREND_TITLE[metric] : `${metricLabel} by district`}
+        </h2>
+
+        {/* Metric (compact dropdown) */}
+        <select value={metric} onChange={(e) => onMetric(e.target.value as Metric)} className={SELECT} aria-label="Metric">
+          {METRICS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+        </select>
+
+        {(view === 'map' || view === 'bars') && (
+          <select
+            value={year}
+            onChange={(e) => { const ny = Number(e.target.value) as Year; onYear(ny); if (month > lastMonthIdx(ny)) onMonth(-1) }}
+            className={SELECT}
+            aria-label="Year"
+          >
+            {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+          </select>
+        )}
+        {view === 'bars' && (
+          <select value={month} onChange={(e) => onMonth(Number(e.target.value))} className={SELECT} aria-label="Month">
+            <option value={-1}>Whole year</option>
+            {Array.from({ length: lastMonthIdx(year) + 1 }, (_, i) => i).map((i) => (
+              <option key={i} value={i}>{MONTHS[i]}</option>
+            ))}
+          </select>
+        )}
+
+        <div className="w-44"><DistrictSearch districts={districts} selected={selected} onSelect={onSelect} /></div>
 
         <div className="ml-auto flex items-center gap-2">
-          {(view === 'map' || view === 'bars') && (
-            <select
-              value={year}
-              onChange={(e) => {
-                const ny = Number(e.target.value) as Year
-                onYear(ny)
-                if (month > lastMonthIdx(ny)) onMonth(-1)
-              }}
-              className={SELECT}
-              aria-label="Year"
-            >
-              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
-            </select>
+          {/* Classification (popover) — affects map & bars colours */}
+          {view !== 'trend' && (
+            <Popover label="Classes">
+              {(close) => (
+                <div role="radiogroup" aria-label="Classification method">
+                  {CLASS_METHODS.map((c) => (
+                    <button
+                      key={c.id}
+                      role="radio"
+                      aria-checked={c.id === classMethod}
+                      onClick={() => { onClassMethod(c.id); close() }}
+                      className={`block w-full rounded-md px-2.5 py-1.5 text-left text-[0.85rem] ${c.id === classMethod ? 'bg-brand-soft font-600 text-brand-strong' : 'text-ink-soft hover:bg-panel'}`}
+                    >
+                      <span className="block font-600">{c.label}</span>
+                      <span className="block text-[0.72rem] text-ink-faint">{c.help}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </Popover>
           )}
-          {view === 'bars' && (
-            <select value={month} onChange={(e) => onMonth(Number(e.target.value))} className={SELECT} aria-label="Month">
-              <option value={-1}>Whole year</option>
-              {Array.from({ length: lastMonthIdx(year) + 1 }, (_, i) => i).map((i) => (
-                <option key={i} value={i}>{MONTHS[i]}</option>
-              ))}
-            </select>
-          )}
-          <div className="w-48">
-            <DistrictSearch districts={districts} selected={selected} onSelect={onSelect} />
-          </div>
+
+          {/* Export (popover) */}
+          <Popover label="Export">
+            {(close) => (
+              <div>
+                <button onClick={() => { downloadCsv(); close() }} className="block w-full rounded-md px-2.5 py-1.5 text-left text-[0.85rem] font-600 text-ink-soft hover:bg-panel">Download data (CSV)</button>
+                {view === 'map' && (
+                  <button onClick={() => { setExportSignal((s) => s + 1); close() }} className="block w-full rounded-md px-2.5 py-1.5 text-left text-[0.85rem] font-600 text-ink-soft hover:bg-panel">Download map (PNG)</button>
+                )}
+              </div>
+            )}
+          </Popover>
+
+          <button onClick={resetAll} title="Reset filters and map view" className={SELECT + ' hover:border-line-strong hover:text-brand-strong'}>Reset</button>
+
           <Toggle view={view} onView={onView} />
         </div>
       </div>
@@ -103,7 +140,8 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
       <div className="relative min-h-0 flex-1 p-0">
         {view === 'map' ? (
           <>
-            <MapView year={year} metric={metric} month={month} selected={selected} classMethod={classMethod} onSelect={onSelect} />
+            <MapView year={year} metric={metric} month={month} selected={selected} classMethod={classMethod} onSelect={onSelect} resetSignal={resetSignal} exportSignal={exportSignal} />
+            <MapKpiStrip year={year} month={month} selected={selected} />
             <MonthSlider
               year={year}
               month={month}
@@ -126,8 +164,29 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
   )
 }
 
+/** Small click-to-open menu; children is a render prop given a `close` fn. */
+function Popover({ label, children }: { label: string; children: (close: () => void) => ReactNode }) {
+  const [open, setOpen] = useState(false)
+  const close = () => setOpen(false)
+  return (
+    <div className="relative">
+      <button onClick={() => setOpen((o) => !o)} aria-expanded={open} className={SELECT + ' flex items-center gap-1 hover:border-line-strong hover:text-brand-strong'}>
+        {label} <span aria-hidden="true" className="text-[0.7rem]">▾</span>
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-30" onClick={close} aria-hidden="true" />
+          <div className="absolute right-0 z-40 mt-1 min-w-[200px] rounded-lg border border-line bg-surface p-1.5 shadow-lg">
+            {children(close)}
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 function Toggle({ view, onView }: { view: CanvasView; onView: (v: CanvasView) => void }) {
-  const items: { id: CanvasView; label: string; icon: React.ReactNode }[] = [
+  const items: { id: CanvasView; label: string; icon: ReactNode }[] = [
     {
       id: 'map',
       label: 'Map',
@@ -166,7 +225,7 @@ function Toggle({ view, onView }: { view: CanvasView; onView: (v: CanvasView) =>
             key={it.id}
             onClick={() => onView(it.id)}
             aria-pressed={active}
-            className={`flex items-center gap-2 rounded-lg px-3.5 py-2 text-[0.9rem] font-600 transition-colors ${
+            className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[0.88rem] font-600 transition-colors ${
               active ? 'bg-brand text-surface shadow-sm' : 'text-ink-soft hover:bg-brand-soft hover:text-brand-strong'
             }`}
           >
