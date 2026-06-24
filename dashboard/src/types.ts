@@ -1,7 +1,7 @@
 // Shared types for the dashboard. Kept central so the data layer (JSON now,
 // BigQuery API later) and the UI agree on the same shapes.
 
-export type Page = 'dashboard' | 'analytics' | 'gis' | 'data' | 'population'
+export type Page = 'dashboard' | 'analytics' | 'gis' | 'data' | 'population' | 'trend'
 
 // A surveillance year. Kept as `number` (not a fixed union) so future years are
 // added by rebuilding dengue.json — no type/code changes. The list of available

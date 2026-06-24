@@ -14,12 +14,12 @@ export function MapKpiStrip({ year, month, selected }: { year: Year; month: numb
   const deltaLabel = monthly ? `vs ${MONTHS[month]} ${year - 1}` : `vs ${year - 1}`
 
   return (
-    <div className="pointer-events-none absolute bottom-3 left-3 z-10 w-[460px] rounded-xl border border-line bg-surface/92 p-2.5 shadow-[0_6px_24px_rgba(21,33,46,0.16)] backdrop-blur-sm">
-      <div className="mb-2 flex items-baseline justify-between px-0.5">
-        <span className="font-serif text-[0.98rem] font-600 text-ink">{selected ?? 'Tamil Nadu'}</span>
-        <span className="text-[0.74rem] font-600 text-ink-faint">{period}</span>
+    <div className="pointer-events-none absolute bottom-3 left-3 z-10 w-[450px] rounded-lg border border-line bg-surface/92 px-2.5 py-1.5 shadow-[0_6px_24px_rgba(21,33,46,0.16)] backdrop-blur-sm">
+      <div className="mb-1 flex items-baseline justify-between px-0.5">
+        <span className="font-serif text-[0.88rem] font-600 text-ink">{selected ?? 'Tamil Nadu'}</span>
+        <span className="text-[0.7rem] font-600 text-ink-faint">{period}</span>
       </div>
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-1.5">
         <Card label="Cases" value={num(t.cases)} />
         <Card label="Deaths" value={num(t.deaths)} sub={`CFR ${t.cfr.toFixed(2)}%`} />
         <Card label="Attack /100k" value={t.attackRate.toFixed(1)} />
@@ -35,10 +35,10 @@ export function MapKpiStrip({ year, month, selected }: { year: Year; month: numb
 
 function Card({ label, value, sub, color = 'text-ink' }: { label: string; value: string; sub?: string; color?: string }) {
   return (
-    <div className="rounded-lg border border-line bg-surface px-2.5 py-1.5 shadow-sm">
-      <p className="truncate text-[0.62rem] font-600 uppercase tracking-[0.04em] text-ink-faint">{label}</p>
-      <p className={`font-mono text-[1.15rem] font-600 leading-tight ${color}`}>{value}</p>
-      <p className="h-[0.85rem] text-[0.64rem] leading-tight text-ink-faint">{sub ?? ''}</p>
+    <div className="rounded-md border border-line bg-surface px-2 py-1 shadow-sm">
+      <p className="truncate text-[0.58rem] font-600 uppercase tracking-[0.03em] text-ink-faint">{label}</p>
+      <p className={`font-mono text-[1rem] font-600 leading-tight ${color}`}>{value}</p>
+      {sub && <p className="text-[0.6rem] leading-tight text-ink-faint">{sub}</p>}
     </div>
   )
 }

@@ -2,6 +2,7 @@ import type { Page } from '../types'
 
 const NAV: { id: Page; label: string }[] = [
   { id: 'dashboard', label: 'Dashboard' },
+  { id: 'trend', label: 'Trend' },
   { id: 'data', label: 'Data' },
   { id: 'population', label: 'Population' },
   // Advanced Analytics + GIS hidden for now (kept in code; restore here to re-enable)

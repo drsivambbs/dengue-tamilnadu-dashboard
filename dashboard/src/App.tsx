@@ -3,6 +3,7 @@ import { Header } from './components/Header'
 import { CanvasPanel, type CanvasView } from './components/CanvasPanel'
 import { DataTable } from './components/DataTable'
 import { PopulationTab } from './components/PopulationTab'
+import { TrendPage } from './components/TrendPage'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
 import { GisDashboard } from './components/GisDashboard'
 import { LATEST_YEAR, LATEST_MONTH, loadData } from './dataService'
@@ -49,6 +50,15 @@ function App() {
             setPage('dashboard')
           }}
         />
+      </div>
+    )
+  }
+
+  if (page === 'trend') {
+    return (
+      <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+        <Header page={page} onPage={goPage} />
+        <TrendPage selected={selected} onSelect={setSelected} />
       </div>
     )
   }

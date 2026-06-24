@@ -2,14 +2,13 @@ import { useMemo, useState, type ReactNode } from 'react'
 import { MapView } from './MapView'
 import { MonthSlider } from './MonthSlider'
 import { MapKpiStrip } from './MapKpiStrip'
-import { EpidemicCurve } from './EpidemicCurve'
 import { DistrictBars } from './DistrictBars'
 import { DistrictSearch } from './DistrictSearch'
 import { listDistricts, YEARS, lastMonthIndex } from '../dataService'
 import { downloadCsv } from '../export'
 import { MONTHS, METRICS, CLASS_METHODS, type ClassMethod, type Metric, type Year } from '../types'
 
-export type CanvasView = 'map' | 'trend' | 'bars'
+export type CanvasView = 'map' | 'bars'
 
 const lastMonthIdx = (y: Year) => lastMonthIndex(y)
 const SELECT = 'rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
@@ -28,13 +27,6 @@ interface Props {
   onClassMethod: (m: ClassMethod) => void
   onSelect: (d: string | null) => void
   onReset: () => void
-}
-
-const TREND_TITLE: Record<Metric, string> = {
-  cases: 'Monthly cases',
-  attackRate: 'Monthly attack rate',
-  deaths: 'Monthly deaths',
-  cfr: 'Monthly case fatality',
 }
 
 export function CanvasPanel({ view, onView, year, month, metric, selected, classMethod, onYear, onMonth, onMetric, onClassMethod, onSelect, onReset }: Props) {
@@ -66,9 +58,7 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
   return (
     <section className="flex min-h-0 flex-1 flex-col overflow-hidden rounded-[var(--radius-panel)] border border-line bg-surface shadow-sm">
       <div className="relative z-20 flex flex-wrap items-center gap-2 border-b border-line px-5 py-2.5">
-        <h2 className="mr-1 font-serif text-[1.1rem] font-600 text-ink">
-          {view === 'trend' ? TREND_TITLE[metric] : `${metricLabel} by district`}
-        </h2>
+        <h2 className="mr-1 font-serif text-[1.1rem] font-600 text-ink">{metricLabel} by district</h2>
 
         {/* Metric (compact dropdown) */}
         <select value={metric} onChange={(e) => onMetric(e.target.value as Metric)} className={SELECT} aria-label="Metric">
@@ -98,8 +88,7 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
 
         <div className="ml-auto flex items-center gap-2">
           {/* Classification (popover) — affects map & bars colours */}
-          {view !== 'trend' && (
-            <Popover label="Classes">
+          <Popover label="Classes">
               {(close) => (
                 <div role="radiogroup" aria-label="Classification method">
                   {CLASS_METHODS.map((c) => (
@@ -116,8 +105,7 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
                   ))}
                 </div>
               )}
-            </Popover>
-          )}
+          </Popover>
 
           {/* Export (popover) */}
           <Popover label="Export">
@@ -152,12 +140,8 @@ export function CanvasPanel({ view, onView, year, month, metric, selected, class
               canNext={!(year === YEARS[YEARS.length - 1] && month >= lastMonthIdx(year))}
             />
           </>
-        ) : view === 'bars' ? (
-          <DistrictBars year={year} month={month} metric={metric} classMethod={classMethod} selected={selected} onSelect={onSelect} />
         ) : (
-          <div className="h-full w-full p-4">
-            <EpidemicCurve selected={selected} metric={metric} />
-          </div>
+          <DistrictBars year={year} month={month} metric={metric} classMethod={classMethod} selected={selected} onSelect={onSelect} />
         )}
       </div>
     </section>
@@ -203,15 +187,6 @@ function Toggle({ view, onView }: { view: CanvasView; onView: (v: CanvasView) =>
       icon: (
         <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
           <path d="M5 20V10M12 20V4M19 20v-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-        </svg>
-      ),
-    },
-    {
-      id: 'trend',
-      label: 'Trend',
-      icon: (
-        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" aria-hidden="true">
-          <path d="M4 18l5-6 4 3 6-8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       ),
     },
