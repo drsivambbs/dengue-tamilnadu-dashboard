@@ -7,16 +7,15 @@ import { getMonthlyCases, getMonthlyMetric, isPartial, YEARS } from '../dataServ
 import { METRIC_CONFIG } from '../metrics'
 import { MONTHS, type Metric } from '../types'
 
-// Year series, derived from the data: latest = red, second-latest = blue, older = grey.
-const SERIES = YEARS.map((year, i) => {
-  const fromEnd = YEARS.length - 1 - i
-  if (fromEnd === 0) return { year, color: '#c0392b', width: 3, dash: undefined as string | undefined }
-  if (fromEnd === 1) return { year, color: '#1f5fa6', width: 3, dash: undefined as string | undefined }
-  return { year, color: '#9aa7b5', width: 2, dash: '5 4' as string | undefined }
-})
-
-// Latest non-partial year — basis for the peak marker and high-season band.
-const LATEST_FULL_YEAR = [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[YEARS.length - 1]
+// Year series colours: latest = red, second-latest = blue, older = grey.
+function buildSeries() {
+  return YEARS.map((year, i) => {
+    const fromEnd = YEARS.length - 1 - i
+    if (fromEnd === 0) return { year, color: '#c0392b', width: 3, dash: undefined as string | undefined }
+    if (fromEnd === 1) return { year, color: '#1f5fa6', width: 3, dash: undefined as string | undefined }
+    return { year, color: '#9aa7b5', width: 2, dash: '5 4' as string | undefined }
+  })
+}
 
 const Y_LABEL: Record<Metric, string> = {
   cases: 'Reported cases',
@@ -33,6 +32,9 @@ interface CurveTooltipProps {
 
 export function EpidemicCurve({ selected, metric }: { selected: string | null; metric: Metric }) {
   const fmtVal = METRIC_CONFIG[metric].format
+  const SERIES = useMemo(buildSeries, [])
+  // Latest non-partial year — basis for the peak marker and high-season band.
+  const LATEST_FULL_YEAR = useMemo(() => [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[YEARS.length - 1], [])
 
   const { data, peak, season } = useMemo(() => {
     // Reported extent comes from cases (a 0-CFR month is real, not "no data").

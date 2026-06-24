@@ -10,7 +10,6 @@ import { MONTHS, METRICS, type ClassMethod, type Metric, type Year } from '../ty
 export type CanvasView = 'map' | 'trend' | 'bars'
 
 const lastMonthIdx = (y: Year) => lastMonthIndex(y)
-const YEAR_RANGE = `${YEARS[0]}–${YEARS[YEARS.length - 1]}`
 const SELECT = 'rounded-lg border border-line bg-surface px-2 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
 
 interface Props {
@@ -36,6 +35,7 @@ const TREND_TITLE: Record<Metric, string> = {
 export function CanvasPanel({ view, onView, year, month, metric, selected, classMethod, onYear, onMonth, onSelect }: Props) {
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
   const districts = useMemo(() => listDistricts().slice().sort(), [])
+  const YEAR_RANGE = `${YEARS[0]}–${YEARS[YEARS.length - 1]}`
 
   // Step one month, rolling across year boundaries within the available data.
   const stepMonth = (delta: number) => {

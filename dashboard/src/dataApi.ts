@@ -82,6 +82,8 @@ export const dataApi = {
     return fetch(`${API_URL}/api/rows${qs ? `?${qs}` : ''}`).then(handle)
   },
   saveMonthly: (r: MonthlyInput): Promise<MonthlyInput> => post('/api/monthly', r, 'PUT'),
+  bulkImport: (rows: MonthlyInput[]): Promise<{ imported: number; years: number[] }> =>
+    post('/api/monthly/bulk', { rows }, 'POST'),
   addYear: (r: { district: string; year: number }): Promise<unknown> => post('/api/year', r, 'POST'),
   removeYear: (district: string, year: number): Promise<unknown> =>
     fetch(`${API_URL}/api/year?district=${encodeURIComponent(district)}&year=${year}`, {

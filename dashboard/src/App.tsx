@@ -7,11 +7,20 @@ import { DataTable } from './components/DataTable'
 import { PopulationTab } from './components/PopulationTab'
 import { AdvancedAnalytics } from './components/AdvancedAnalytics'
 import { GisDashboard } from './components/GisDashboard'
-import { LATEST_YEAR, LATEST_MONTH } from './dataService'
+import { LATEST_YEAR, LATEST_MONTH, loadData } from './dataService'
 import type { ClassMethod, Metric, Page, Year } from './types'
 
 function App() {
   const [page, setPage] = useState<Page>('dashboard')
+  const [dataVersion, setDataVersion] = useState(0) // bumped to re-read live data
+
+  // Re-fetch live data and remount the dashboard so edits/imports appear.
+  const refresh = () => { loadData().then(() => setDataVersion((v) => v + 1)).catch(() => {}) }
+  // Navigate; when returning to the dashboard from an editor, pull fresh data.
+  const goPage = (p: Page) => {
+    if (p === 'dashboard' && (page === 'data' || page === 'population')) refresh()
+    setPage(p)
+  }
   // Default to the most recent period available in the data.
   const [year, setYear] = useState<Year>(LATEST_YEAR)
   const [metric, setMetric] = useState<Metric>('attackRate')
@@ -35,12 +44,13 @@ function App() {
   if (page === 'data') {
     return (
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-        <Header page={page} onPage={setPage} />
+        <Header page={page} onPage={goPage} />
         <DataTable
           onOpenDistrict={(d, y) => {
             setSelected(d)
             setYear(y)
             setView('map')
+            refresh()
             setPage('dashboard')
           }}
         />
@@ -51,7 +61,7 @@ function App() {
   if (page === 'population') {
     return (
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-        <Header page={page} onPage={setPage} />
+        <Header page={page} onPage={goPage} />
         <PopulationTab />
       </div>
     )
@@ -60,7 +70,7 @@ function App() {
   if (page === 'analytics') {
     return (
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-        <Header page={page} onPage={setPage} />
+        <Header page={page} onPage={goPage} />
         <AdvancedAnalytics selected={selected} onSelect={setSelected} />
       </div>
     )
@@ -69,15 +79,15 @@ function App() {
   if (page === 'gis') {
     return (
       <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-        <Header page={page} onPage={setPage} />
+        <Header page={page} onPage={goPage} />
         <GisDashboard />
       </div>
     )
   }
 
   return (
-    <div className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
-      <Header page={page} onPage={setPage} />
+    <div key={dataVersion} className="app-bg flex h-screen min-w-[1180px] flex-col text-ink">
+      <Header page={page} onPage={goPage} />
       <div className="flex min-h-0 flex-1">
         <Sidebar
           metric={metric}

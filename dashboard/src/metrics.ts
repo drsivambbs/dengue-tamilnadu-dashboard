@@ -64,11 +64,14 @@ export function textOn(hex: string): string {
   return lum > 0.6 ? '#15212e' : '#ffffff'
 }
 
-/** MapLibre step expression colouring a feature by its `value` property,
- *  using the supplied (already strictly-increasing) breaks. */
+/** MapLibre expression colouring a feature by its `value` property, using the
+ *  supplied (already strictly-increasing) breaks. With no breaks (one class, no
+ *  spread) it falls back to a single colour — a `step` with no stops is invalid. */
 export function colorExpression(breaks: number[]): unknown[] {
   const colors = sampleColors(breaks.length + 1)
-  const step: unknown[] = ['step', ['get', 'value'], colors[0]]
-  breaks.forEach((b, i) => step.push(b, colors[i + 1]))
-  return ['case', ['==', ['get', 'value'], null], NO_DATA, step]
+  const fill: unknown =
+    breaks.length === 0
+      ? colors[0]
+      : ['step', ['get', 'value'], colors[0], ...breaks.flatMap((b, i) => [b, colors[i + 1]])]
+  return ['case', ['==', ['get', 'value'], null], NO_DATA, fill]
 }

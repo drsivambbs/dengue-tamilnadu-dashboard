@@ -97,11 +97,90 @@ class OverrideRow(BaseModel):
     population: int = Field(gt=0)
 
 
+class BulkRows(BaseModel):
+    rows: list[MonthlyRow]
+
+
 # ---- read -----------------------------------------------------------------
 
 @app.get("/api/health")
 def health():
     return {"status": "ok", "districts": len(VALID_DISTRICTS)}
+
+
+MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
+@app.get("/api/dashboard")
+def dashboard():
+    """Full dengue.json-shaped payload for the live dashboard, assembled from the
+    monthly counts + population view (single source of truth)."""
+    monthly = list(client.query(
+        f"SELECT m.district, m.year, m.month, m.cases, m.deaths, p.population "
+        f"FROM `{MONTHLY}` m LEFT JOIN `{POP}` p USING (district, year) "
+        f"ORDER BY m.district, m.year, m.month"
+    ).result())
+
+    years = sorted({r["year"] for r in monthly})
+    districts_set = sorted({r["district"] for r in monthly})
+
+    # district -> year -> {cases[12], deaths[12], population}
+    blank = lambda: {"cases": [0] * 12, "deaths": [0] * 12, "population": 0}
+    grid: dict = {d: {y: blank() for y in years} for d in districts_set}
+    for r in monthly:
+        cell = grid[r["district"]][r["year"]]
+        cell["cases"][r["month"] - 1] = r["cases"] or 0
+        cell["deaths"][r["month"] - 1] = r["deaths"] or 0
+        if r["population"]:
+            cell["population"] = r["population"]
+
+    def metric(cases_sum, deaths_sum, pop):
+        ar = round(cases_sum / pop * 100000, 1) if pop else 0.0
+        cfr = round(deaths_sum / cases_sum * 100, 2) if cases_sum else 0.0
+        return ar, cfr
+
+    districts = []
+    state = {y: {"cases": 0, "deaths": 0, "population": 0} for y in years}
+    monthly_out: dict = {str(y): {} for y in years}
+    for d in districts_set:
+        metrics = {}
+        for y in years:
+            cell = grid[d][y]
+            cs, ds, pop = sum(cell["cases"]), sum(cell["deaths"]), cell["population"]
+            ar, cfr = metric(cs, ds, pop)
+            metrics[str(y)] = {"cases": cs, "deaths": ds, "population": pop, "attackRate": ar, "cfr": cfr}
+            state[y]["cases"] += cs
+            state[y]["deaths"] += ds
+            state[y]["population"] += pop
+            monthly_out[str(y)][d] = {"cases": cell["cases"], "deaths": cell["deaths"]}
+        districts.append({"district": d, "metrics": metrics})
+
+    state_totals = {}
+    partial = {}
+    for y in years:
+        cs, ds, pop = state[y]["cases"], state[y]["deaths"], state[y]["population"]
+        ar, cfr = metric(cs, ds, pop)
+        state_totals[str(y)] = {"cases": cs, "deaths": ds, "population": pop, "attackRate": ar, "cfr": cfr}
+        # partial = last month (across districts) that has any cases < December
+        last = -1
+        for d in districts_set:
+            for i, c in enumerate(monthly_out[str(y)][d]["cases"]):
+                if c > 0:
+                    last = max(last, i)
+        if 0 <= last < 11:
+            partial[str(y)] = f"Jan–{MONTH_ABBR[last]}"
+
+    return {
+        "meta": {
+            "source": "Integrated Health Information Platform (IHIP), Tamil Nadu",
+            "populationSource": "Government of Tamil Nadu (Census 2011, projected)",
+            "years": years,
+            "partial": partial,
+        },
+        "districts": districts,
+        "stateTotals": state_totals,
+        "monthly": monthly_out,
+    }
 
 
 @app.get("/api/rows")
@@ -171,6 +250,52 @@ def upsert_monthly(r: MonthlyRow, x_user_email: str = Header(default="anonymous"
     _audit("month_upsert", r.district, r.year, r.month,
            f"cases={r.cases} deaths={r.deaths}", x_user_email)
     return r.model_dump()
+
+
+@app.post("/api/monthly/bulk")
+def bulk_monthly(body: BulkRows, x_user_email: str = Header(default="anonymous")):
+    """Upsert many monthly rows at once (long format). Unknown districts are
+    rejected up front so a bad paste fails cleanly without partial writes."""
+    if not body.rows:
+        raise HTTPException(400, "No rows to import")
+    if len(body.rows) > 5000:
+        raise HTTPException(400, "Too many rows (max 5000 per import)")
+    unknown = sorted({r.district for r in body.rows if r.district not in VALID_DISTRICTS})
+    if unknown:
+        raise HTTPException(400, f"Unknown district(s): {', '.join(unknown[:10])}")
+
+    # Dedupe on (district, year, month) — last wins — so MERGE matches at most one.
+    dedup = {(r.district, r.year, r.month): r for r in body.rows}
+    final = list(dedup.values())
+
+    job_config = bigquery.QueryJobConfig(query_parameters=[
+        bigquery.ArrayQueryParameter("d", "STRING", [r.district for r in final]),
+        bigquery.ArrayQueryParameter("y", "INT64", [r.year for r in final]),
+        bigquery.ArrayQueryParameter("mo", "INT64", [r.month for r in final]),
+        bigquery.ArrayQueryParameter("c", "INT64", [r.cases for r in final]),
+        bigquery.ArrayQueryParameter("de", "INT64", [r.deaths for r in final]),
+    ])
+    client.query(
+        f"""MERGE `{MONTHLY}` T
+        USING (
+          SELECT d AS district, y AS year, mo AS month, c AS cases, de AS deaths
+          FROM UNNEST(@d) AS d WITH OFFSET p
+          JOIN UNNEST(@y)  AS y  WITH OFFSET p1 ON p = p1
+          JOIN UNNEST(@mo) AS mo WITH OFFSET p2 ON p = p2
+          JOIN UNNEST(@c)  AS c  WITH OFFSET p3 ON p = p3
+          JOIN UNNEST(@de) AS de WITH OFFSET p4 ON p = p4
+        ) S
+        ON T.district=S.district AND T.year=S.year AND T.month=S.month
+        WHEN MATCHED THEN UPDATE SET cases=S.cases, deaths=S.deaths
+        WHEN NOT MATCHED THEN INSERT (district, year, month, cases, deaths)
+          VALUES (S.district, S.year, S.month, S.cases, S.deaths)""",
+        job_config=job_config,
+    ).result()
+    years = sorted({r.year for r in final})
+    ndist = len({r.district for r in final})
+    _audit("bulk_import", f"{ndist} districts", years[0], None,
+           f"rows={len(final)} years={years}", x_user_email)
+    return {"imported": len(final), "years": years}
 
 
 # ---- population: base (2011 census + per-district growth) ------------------

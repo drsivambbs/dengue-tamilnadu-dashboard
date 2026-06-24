@@ -1,15 +1,33 @@
 /**
  * Single data-access layer for the whole dashboard.
  *
- * Phase 1 reads the bundled JSON export. In Phase 2 this same module will be
- * reimplemented to call the BigQuery-backed API — the UI components depend only
- * on these functions, so nothing above this file changes.
+ * Reads LIVE from the API (BigQuery) via loadData(), which must run before the
+ * app renders (see main.tsx). The getters below stay synchronous — they read an
+ * in-memory store populated on load — so UI components are unchanged. Call
+ * loadData() again to refresh after edits/imports. (Weather stays bundled.)
  */
-import data from './data/dengue.json'
 import weatherData from './data/weather.json'
+import { dataApi } from './dataApi'
 import type { DengueData, DistrictMetric, Metric, Year } from './types'
 
-const db = data as unknown as DengueData
+const EMPTY_DB: DengueData = {
+  meta: { source: '', populationSource: '', years: [], partial: {} },
+  districts: [],
+  stateTotals: {},
+  monthly: {},
+}
+let db: DengueData = EMPTY_DB
+
+/** Fetch the live dataset and populate the in-memory store. */
+export async function loadData(): Promise<void> {
+  const res = await fetch(`${dataApi.url}/api/dashboard`)
+  if (!res.ok) throw new Error(`Could not load data (${res.status})`)
+  db = (await res.json()) as DengueData
+  meta = db.meta
+  YEARS = [...db.meta.years].sort((a, b) => a - b)
+  LATEST_YEAR = YEARS[YEARS.length - 1]
+  LATEST_MONTH = lastMonthIndex(LATEST_YEAR)
+}
 
 interface WeatherYear {
   rain: (number | null)[]
@@ -40,13 +58,15 @@ export function getAnnualHumidity(year: Year, district: string): number {
   return h.length ? h.reduce((a, v) => a + v, 0) / h.length : 0
 }
 
-export const meta = db.meta
-
-// ---- available years + month extents (derived from the data) ----
+// ---- available years + month extents (live; set by loadData) ----
+/** Dataset metadata (source, years, partial labels). */
+export let meta = db.meta
 /** Surveillance years present in the data, ascending. */
-export const YEARS: Year[] = [...db.meta.years].sort((a, b) => a - b)
+export let YEARS: Year[] = []
 /** Most recent year in the data. */
-export const LATEST_YEAR: Year = YEARS[YEARS.length - 1]
+export let LATEST_YEAR: Year = 0
+/** Latest month with data in the latest year (0-indexed) — the default view. */
+export let LATEST_MONTH = -1
 
 /** 0-indexed last month that has reported cases in a year (11 for a full year,
  *  fewer for a partial/current year). Drives sliders, dropdowns and defaults so
@@ -58,9 +78,6 @@ export function lastMonthIndex(year: Year): number {
   for (const rec of Object.values(m)) rec.cases.forEach((c, i) => { if (c > 0) last = Math.max(last, i) })
   return last < 0 ? 11 : last
 }
-
-/** Latest month with data in the latest year (0-indexed) — the default view. */
-export const LATEST_MONTH: number = lastMonthIndex(LATEST_YEAR)
 
 export function listDistricts(): string[] {
   return db.districts.map((d) => d.district)

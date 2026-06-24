@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState } from 'react'
 import { dataApi, type ApiRow } from '../dataApi'
-import { listDistricts, YEARS, lastMonthIndex } from '../dataService'
+import { listDistricts, YEARS, LATEST_YEAR, lastMonthIndex } from '../dataService'
 import { MONTHS, type Year } from '../types'
+import { BulkImport } from './BulkImport'
 
 const intl = (v: number) => v.toLocaleString('en-IN')
-const DISTRICTS = listDistricts().slice().sort()
 // Number of selectable months for a year (partial/current years auto-limit).
 const lastMonth = (y: Year | 'all') => (y === 'all' ? 12 : lastMonthIndex(y) + 1)
 
 interface Draft { district: string; year: string }
-const emptyDraft = (): Draft => ({ district: DISTRICTS[0], year: '2026' })
 
 export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: Year) => void }) {
+  const DISTRICTS = useMemo(() => listDistricts().slice().sort(), [])
+  const emptyDraft = (): Draft => ({ district: DISTRICTS[0] ?? '', year: String(LATEST_YEAR) })
   const [rows, setRows] = useState<ApiRow[]>([])
   const [loading, setLoading] = useState(true)
   const [err, setErr] = useState('')
@@ -23,6 +24,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
   const [edit, setEdit] = useState<{ cases: string; deaths: string }>({ cases: '', deaths: '' })
   const [draft, setDraft] = useState<Draft>(emptyDraft())
   const [busy, setBusy] = useState(false)
+  const [showImport, setShowImport] = useState(false)
 
   const monthly = monthFilter !== 'year' // per-month grain vs annual rollup
 
@@ -131,9 +133,17 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
             <option value="year">Whole year (totals)</option>
             {monthOptions.map((m) => <option key={m} value={m}>{MONTHS[m - 1]}</option>)}
           </select>
+          <button
+            onClick={() => setShowImport((v) => !v)}
+            className={`rounded-lg border px-3 py-1.5 text-[0.85rem] font-600 transition-colors ${showImport ? 'border-brand bg-brand-soft text-brand-strong' : 'border-line text-ink-soft hover:border-line-strong hover:text-brand-strong'}`}
+          >
+            Bulk import {showImport ? '▴' : '▾'}
+          </button>
         </div>
 
         {err && <p className="border-b border-line bg-alert/10 px-5 py-2 text-[0.85rem] text-alert">{err}</p>}
+
+        {showImport && <BulkImport districts={DISTRICTS} onImported={load} />}
 
         {/* Add district-year form (seeds 12 zero months; population auto-projects) */}
         <div className="flex flex-wrap items-end gap-2 border-b border-line bg-panel/40 px-5 py-2.5">
