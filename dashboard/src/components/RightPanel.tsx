@@ -1,30 +1,23 @@
 import { KpiCards } from './KpiCards'
-import { DistrictRanking } from './DistrictRanking'
 import { isPartial } from '../dataService'
-import { MONTHS, type ClassMethod, type Metric, type Year } from '../types'
+import { MONTHS, type Year } from '../types'
 
 /**
- * Right "summary" rail — scope KPIs + district ranking. Collapsible like the
- * workbench; the natural home for the insights banner later.
+ * Right "summary" rail — scope KPIs for the current selection. Collapsible like
+ * the workbench. (District ranking now lives in the canvas Bars view.)
  */
 export function RightPanel({
   year,
-  metric,
   selected,
   open,
   onToggle,
-  onSelect,
   month = -1,
-  classMethod = 'quantile',
 }: {
   year: Year
-  metric: Metric
   selected: string | null
   open: boolean
   onToggle: () => void
-  onSelect: (d: string | null) => void
   month?: number
-  classMethod?: ClassMethod
 }) {
   const partial = isPartial(year)
   const monthly = month >= 0
@@ -74,7 +67,6 @@ export function RightPanel({
       <div className="p-2.5">
         <KpiCards year={year} selected={selected} month={month} />
       </div>
-      <DistrictRanking year={year} metric={metric} selected={selected} onSelect={onSelect} month={month} classMethod={classMethod} />
     </aside>
   )
 }

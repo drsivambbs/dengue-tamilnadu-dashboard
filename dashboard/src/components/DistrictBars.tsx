@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Label } from 'recharts'
+import { BarChart, Bar, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Label } from 'recharts'
 import { getYearValues, getMonthValues } from '../dataService'
 import { classify } from '../classify'
 import { colorForValue, METRIC_CONFIG } from '../metrics'
@@ -37,12 +37,16 @@ export function DistrictBars({
   const fmtVal = METRIC_CONFIG[metric].format
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
 
-  const data = useMemo(() => {
+  const { data, median } = useMemo(() => {
     const scope = month < 0 ? getYearValues(year, metric) : getMonthValues(year, month, metric)
     const breaks = classify(scope.map((d) => d.value), classMethod)
-    return scope
+    const rows = scope
       .map((d) => ({ district: d.district, value: d.value, color: colorForValue(d.value, breaks) }))
       .sort((a, b) => b.value - a.value)
+    const sorted = rows.map((r) => r.value).sort((a, b) => a - b)
+    const n = sorted.length
+    const med = n === 0 ? 0 : n % 2 ? sorted[(n - 1) / 2] : (sorted[n / 2 - 1] + sorted[n / 2]) / 2
+    return { data: rows, median: med }
   }, [year, month, metric, classMethod])
 
   const axisFmt = (v: number) => {
@@ -68,8 +72,8 @@ export function DistrictBars({
   return (
     <div className="h-full w-full p-4">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={data} margin={{ top: 8, right: 16, bottom: 76, left: 8 }} barCategoryGap="18%">
-          <CartesianGrid stroke="#e6ecf3" vertical={false} />
+        <BarChart data={data} margin={{ top: 12, right: 24, bottom: 76, left: 8 }} barCategoryGap="20%">
+          <CartesianGrid stroke="#c2cdda" strokeDasharray="2 4" vertical={false} />
           <XAxis
             dataKey="district"
             interval={0}
@@ -90,10 +94,19 @@ export function DistrictBars({
             <Label value={Y_LABEL[metric]} angle={-90} position="insideLeft" style={{ fontSize: 12, fill: '#7488a0', textAnchor: 'middle' }} />
           </YAxis>
           <Tooltip content={Tip as never} cursor={{ fill: 'rgba(31,95,166,0.06)' }} />
+          {/* Median reference — dotted */}
+          <ReferenceLine y={median} stroke="#15212e" strokeDasharray="2 3" strokeWidth={1} ifOverflow="extendDomain">
+            <Label
+              value={`Median ${fmtVal(median)}`}
+              position="right"
+              style={{ fontSize: 11, fontWeight: 600, fill: '#15212e' }}
+            />
+          </ReferenceLine>
           <Bar
             dataKey="value"
             isAnimationActive={false}
             cursor="pointer"
+            radius={[2, 2, 0, 0]}
             onClick={(d: unknown) => {
               const district = (d as { payload?: { district?: string } })?.payload?.district
               if (district) onSelect(district === selected ? null : district)
@@ -103,8 +116,8 @@ export function DistrictBars({
               <Cell
                 key={d.district}
                 fill={d.color}
-                stroke={d.district === selected ? '#15212e' : 'rgba(0,0,0,0.12)'}
-                strokeWidth={d.district === selected ? 2 : 0.5}
+                stroke={d.district === selected ? '#15212e' : '#000000'}
+                strokeWidth={d.district === selected ? 1.5 : 0.35}
               />
             ))}
           </Bar>
