@@ -26,7 +26,9 @@ interface Pt { y: number; m: number }
  *  the month-wise year-overlay profile (tab 2). */
 export function TrendPage({ selected, onSelect }: { selected: string | null; onSelect: (d: string | null) => void }) {
   const [tab, setTab] = useState<'timeline' | 'monthwise'>('timeline')
+  const [resetNonce, setResetNonce] = useState(0) // remounts the active tab to defaults
   const districts = useMemo(() => listDistricts().slice().sort(), [])
+  const reset = () => { onSelect(null); setResetNonce((n) => n + 1) }
 
   return (
     <main className="flex min-h-0 flex-1 flex-col p-4">
@@ -34,9 +36,12 @@ export function TrendPage({ selected, onSelect }: { selected: string | null; onS
         <div className="flex items-center gap-1.5 border-b border-line px-5 py-2.5">
           <SubTab active={tab === 'timeline'} onClick={() => setTab('timeline')}>Full epidemic curve</SubTab>
           <SubTab active={tab === 'monthwise'} onClick={() => setTab('monthwise')}>Month-wise (by year)</SubTab>
-          <div className="ml-auto w-56"><DistrictSearch districts={districts} selected={selected} onSelect={onSelect} /></div>
+          <div className="ml-auto flex items-center gap-2">
+            <button onClick={reset} title="Reset filters to defaults" className="rounded-lg border border-line bg-surface px-3 py-1.5 text-[0.85rem] font-600 text-ink-soft hover:border-line-strong hover:text-brand-strong">Reset</button>
+            <div className="w-56"><DistrictSearch districts={districts} selected={selected} onSelect={onSelect} /></div>
+          </div>
         </div>
-        {tab === 'timeline' ? <Timeline selected={selected} /> : <MonthWise selected={selected} />}
+        {tab === 'timeline' ? <Timeline key={resetNonce} selected={selected} /> : <MonthWise key={resetNonce} selected={selected} />}
       </section>
     </main>
   )
