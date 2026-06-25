@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import { dataApi, type MonthlyInput } from '../dataApi'
+import { LATEST_YEAR } from '../dataService'
 
 /** Parse pasted/uploaded long-format rows: district, year, month, cases, deaths.
  *  Accepts CSV or TSV; an optional header row is skipped. */
@@ -37,6 +38,17 @@ export function BulkImport({ districts, onImported }: { districts: string[]; onI
     file.text().then((t) => { setText(t); setMsg(''); setErr('') })
   }
 
+  // Template: header + one row per district (latest year, month 1) to fill in.
+  const downloadTemplate = () => {
+    const lines = ['district,year,month,cases,deaths', ...districts.map((d) => `${d},${LATEST_YEAR},1,0,0`)]
+    const url = URL.createObjectURL(new Blob([lines.join('\n')], { type: 'text/csv' }))
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'dengue_import_template.csv'
+    a.click()
+    URL.revokeObjectURL(url)
+  }
+
   const doImport = async () => {
     setBusy(true); setErr(''); setMsg('')
     try {
@@ -54,7 +66,10 @@ export function BulkImport({ districts, onImported }: { districts: string[]; onI
         <span className="text-[0.74rem] text-ink-faint">
           Columns: <span className="font-mono">district, year, month, cases, deaths</span> · CSV or TSV (paste from Excel) · header row optional
         </span>
-        <label className="ml-auto cursor-pointer rounded-md border border-line bg-surface px-3 py-1.5 text-[0.82rem] font-600 text-ink-soft hover:border-line-strong hover:text-brand-strong">
+        <button onClick={downloadTemplate} className="ml-auto rounded-md border border-line bg-surface px-3 py-1.5 text-[0.82rem] font-600 text-ink-soft hover:border-line-strong hover:text-brand-strong">
+          Download template
+        </button>
+        <label className="cursor-pointer rounded-md border border-line bg-surface px-3 py-1.5 text-[0.82rem] font-600 text-ink-soft hover:border-line-strong hover:text-brand-strong">
           Upload .csv
           <input type="file" accept=".csv,.tsv,.txt,text/csv" className="hidden" onChange={(e) => onFile(e.target.files?.[0])} />
         </label>
