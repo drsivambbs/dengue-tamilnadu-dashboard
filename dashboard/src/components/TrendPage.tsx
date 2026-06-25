@@ -4,9 +4,16 @@ import { EpidemicCurve } from './EpidemicCurve'
 import { DistrictSearch } from './DistrictSearch'
 import { getMonthlyMetric, listDistricts, YEARS, LATEST_YEAR, LATEST_MONTH, lastMonthIndex } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
-import { MONTHS, METRICS, type Metric } from '../types'
+import { MONTHS, METRICS, type Metric, type Year } from '../types'
 
 const SELECT = 'rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none'
+
+/** n months before (y,m), clamped to the earliest available month. */
+function monthsBack(y: number, m: number, n: number): Pt {
+  const min = YEARS[0] * 12
+  const total = Math.max(min, y * 12 + m - n)
+  return { y: Math.floor(total / 12), m: total % 12 }
+}
 const Y_LABEL: Record<Metric, string> = {
   cases: 'Reported cases',
   attackRate: 'Attack rate (/100k)',
@@ -29,26 +36,44 @@ export function TrendPage({ selected, onSelect }: { selected: string | null; onS
           <SubTab active={tab === 'monthwise'} onClick={() => setTab('monthwise')}>Month-wise (by year)</SubTab>
           <div className="ml-auto w-56"><DistrictSearch districts={districts} selected={selected} onSelect={onSelect} /></div>
         </div>
-        {tab === 'timeline'
-          ? <Timeline selected={selected} />
-          : <div className="min-h-0 flex-1 p-4"><EpidemicCurveHeader selected={selected} /><div className="h-[calc(100%-2rem)]"><EpidemicCurve selected={selected} metric="cases" /></div></div>}
+        {tab === 'timeline' ? <Timeline selected={selected} /> : <MonthWise selected={selected} />}
       </section>
     </main>
   )
 }
 
-function EpidemicCurveHeader({ selected }: { selected: string | null }) {
+function MonthWise({ selected }: { selected: string | null }) {
+  const [metric, setMetric] = useState<Metric>('cases')
+  const [picked, setPicked] = useState<Year[]>(() => YEARS.slice(-3))
+  const years = picked.length ? picked : YEARS
+  const toggleYear = (y: Year) => setPicked((p) => (p.includes(y) ? p.filter((x) => x !== y) : [...p, y]))
+
   return (
-    <div className="mb-1 flex items-baseline gap-3">
-      <h2 className="font-serif text-[1.1rem] font-600 text-ink">Monthly profile by year</h2>
-      <span className="text-[0.85rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · {YEARS[0]}–{YEARS[YEARS.length - 1]}</span>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="flex flex-wrap items-center gap-2 border-b border-line bg-panel/40 px-5 py-2.5">
+        <select value={metric} onChange={(e) => setMetric(e.target.value as Metric)} className={SELECT} aria-label="Metric">
+          {METRICS.map((m) => <option key={m.id} value={m.id}>{m.label}</option>)}
+        </select>
+        <span className="ml-2 text-[0.78rem] font-600 uppercase tracking-wide text-ink-faint">Years</span>
+        <div className="flex gap-1 rounded-lg bg-panel p-1">
+          {YEARS.map((y) => (
+            <button key={y} onClick={() => toggleYear(y)} aria-pressed={picked.includes(y)}
+              className={`rounded-md px-2.5 py-1 text-[0.82rem] font-600 ${picked.includes(y) ? 'bg-brand text-surface' : 'text-ink-soft hover:text-brand-strong'}`}>{y}</button>
+          ))}
+        </div>
+        <span className="ml-auto text-[0.8rem] text-ink-soft">{selected ?? 'Tamil Nadu'} · monthly profile</span>
+      </div>
+      <div className="min-h-0 flex-1 p-4">
+        <EpidemicCurve selected={selected} metric={metric} years={years} />
+      </div>
     </div>
   )
 }
 
 function Timeline({ selected }: { selected: string | null }) {
   const [metric, setMetric] = useState<Metric>('cases')
-  const [from, setFrom] = useState<Pt>({ y: YEARS[0], m: 0 })
+  // Default to the most recent ~24 months (widen via the From/To selectors).
+  const [from, setFrom] = useState<Pt>(() => monthsBack(LATEST_YEAR, LATEST_MONTH, 23))
   const [to, setTo] = useState<Pt>({ y: LATEST_YEAR, m: LATEST_MONTH })
   const fmtVal = METRIC_CONFIG[metric].format
   const metricLabel = METRICS.find((m) => m.id === metric)?.label ?? ''
@@ -111,7 +136,7 @@ function Timeline({ selected }: { selected: string | null }) {
           <ResponsiveContainer width="100%" height="100%">
             <ComposedChart data={data} margin={{ top: 12, right: 20, bottom: 56, left: 8 }} barCategoryGap="18%">
               <CartesianGrid stroke="#c2cdda" strokeDasharray="2 4" vertical={false} />
-              <XAxis dataKey="label" interval={0} angle={-55} textAnchor="end" height={52} tick={{ fontSize: 10.5, fill: '#4b5d70' }} tickLine={false} axisLine={{ stroke: '#cbd5e1' }} />
+              <XAxis dataKey="label" interval={data.length > 24 ? Math.floor(data.length / 20) : 0} angle={-55} textAnchor="end" height={52} tick={{ fontSize: 10.5, fill: '#4b5d70' }} tickLine={false} axisLine={{ stroke: '#cbd5e1' }} />
               <YAxis tick={{ fontSize: 12, fill: '#4b5d70' }} tickLine={false} axisLine={false} width={60} tickFormatter={axisFmt}>
                 <Label value={Y_LABEL[metric]} angle={-90} position="insideLeft" style={{ fontSize: 12, fill: '#7488a0', textAnchor: 'middle' }} />
               </YAxis>

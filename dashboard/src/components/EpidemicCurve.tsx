@@ -5,12 +5,13 @@ import {
 } from 'recharts'
 import { getMonthlyCases, getMonthlyMetric, isPartial, YEARS } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
-import { MONTHS, type Metric } from '../types'
+import { MONTHS, type Metric, type Year } from '../types'
 
 // Year series colours: latest = red, second-latest = blue, older = grey.
-function buildSeries() {
-  return YEARS.map((year, i) => {
-    const fromEnd = YEARS.length - 1 - i
+function buildSeries(years: Year[]) {
+  const sorted = [...years].sort((a, b) => a - b)
+  return sorted.map((year, i) => {
+    const fromEnd = sorted.length - 1 - i
     if (fromEnd === 0) return { year, color: '#c0392b', width: 3, dash: undefined as string | undefined }
     if (fromEnd === 1) return { year, color: '#1f5fa6', width: 3, dash: undefined as string | undefined }
     return { year, color: '#9aa7b5', width: 2, dash: '5 4' as string | undefined }
@@ -30,15 +31,16 @@ interface CurveTooltipProps {
   payload?: { name?: string; value?: number; color?: string }[]
 }
 
-export function EpidemicCurve({ selected, metric }: { selected: string | null; metric: Metric }) {
+export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: string | null; metric: Metric; years?: Year[] }) {
   const fmtVal = METRIC_CONFIG[metric].format
-  const SERIES = useMemo(buildSeries, [])
-  // Latest non-partial year — basis for the peak marker and high-season band.
-  const LATEST_FULL_YEAR = useMemo(() => [...YEARS].reverse().find((y) => !isPartial(y)) ?? YEARS[YEARS.length - 1], [])
+  const yrs = useMemo(() => [...years].sort((a, b) => a - b), [years])
+  const SERIES = useMemo(() => buildSeries(yrs), [yrs])
+  // Latest non-partial year among those shown — basis for the peak marker + band.
+  const LATEST_FULL_YEAR = useMemo(() => [...yrs].reverse().find((y) => !isPartial(y)) ?? yrs[yrs.length - 1], [yrs])
 
   const { data, peak, season } = useMemo(() => {
     // Reported extent comes from cases (a 0-CFR month is real, not "no data").
-    const byYear = YEARS.map((y) => {
+    const byYear = yrs.map((y) => {
       const cases = getMonthlyCases(y, selected)
       let last = -1
       cases.forEach((v, i) => { if (v > 0) last = i })
@@ -75,7 +77,7 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
       peak: peakVal > 0 ? { month: MONTHS[pIdx], value: peakVal } : null,
       season: peakVal > 0 ? { start: MONTHS[s], end: MONTHS[e] } : null,
     }
-  }, [selected, metric])
+  }, [selected, metric, yrs, LATEST_FULL_YEAR])
 
   const axisFmt = (v: number) => {
     if (metric === 'cases') return v >= 1000 ? `${v / 1000}k` : `${v}`

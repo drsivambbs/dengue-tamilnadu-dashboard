@@ -117,12 +117,24 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
           <div className="ml-auto flex items-center gap-2 rounded-lg border border-line bg-panel px-3 py-2 focus-within:border-brand">
             <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search district…" className="w-40 bg-transparent text-[0.9rem] text-ink placeholder:text-ink-faint focus:outline-none" />
           </div>
-          <div className="flex gap-1 rounded-lg bg-panel p-1">
-            {(['all', ...YEARS] as const).map((y) => (
-              <button key={y} onClick={() => { setYearFilter(y); if (typeof monthFilter === 'number' && y !== 'all' && monthFilter > lastMonth(y)) setMonthFilter('months') }}
-                className={`rounded-md px-3 py-1.5 text-[0.85rem] font-600 ${y === yearFilter ? 'bg-brand text-surface' : 'text-ink-soft hover:text-brand-strong'}`}>{y === 'all' ? 'All' : y}</button>
-            ))}
-          </div>
+          {YEARS.length <= 4 ? (
+            <div className="flex gap-1 rounded-lg bg-panel p-1">
+              {(['all', ...YEARS] as const).map((y) => (
+                <button key={y} onClick={() => { setYearFilter(y); if (typeof monthFilter === 'number' && y !== 'all' && monthFilter > lastMonth(y)) setMonthFilter('months') }}
+                  className={`rounded-md px-3 py-1.5 text-[0.85rem] font-600 ${y === yearFilter ? 'bg-brand text-surface' : 'text-ink-soft hover:text-brand-strong'}`}>{y === 'all' ? 'All' : y}</button>
+              ))}
+            </div>
+          ) : (
+            <select
+              value={String(yearFilter)}
+              onChange={(e) => { const v = e.target.value; const ny = (v === 'all' ? 'all' : Number(v)) as Year | 'all'; setYearFilter(ny); if (typeof monthFilter === 'number' && ny !== 'all' && monthFilter > lastMonth(ny)) setMonthFilter('months') }}
+              className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none"
+              aria-label="Year"
+            >
+              <option value="all">All years</option>
+              {YEARS.map((y) => <option key={y} value={y}>{y}</option>)}
+            </select>
+          )}
           <label className="text-[0.78rem] font-600 uppercase tracking-wide text-ink-faint">Month</label>
           <select value={monthFilter} onChange={(e) => { const v = e.target.value; setMonthFilter(v === 'months' || v === 'year' ? v : Number(v)) }}
             className="rounded-lg border border-line bg-surface px-2.5 py-1.5 text-[0.85rem] font-600 text-ink-soft focus:border-brand focus:outline-none" aria-label="Month">
