@@ -85,8 +85,11 @@ export function EpidemicCurve({ selected, metric }: { selected: string | null; m
 
   const Tip = ({ active, label, payload }: CurveTooltipProps) => {
     if (!active || !payload?.length) return null
+    // Dedupe by series name — the shaded Area shares the latest year's name with
+    // its Line, which would otherwise list that year twice.
+    const seen = new Set<string>()
     const rows = [...payload]
-      .filter((p) => p.value != null)
+      .filter((p) => p.value != null && p.name != null && !seen.has(p.name) && seen.add(p.name))
       .sort((a, b) => (b.value as number) - (a.value as number))
     return (
       <div className="rounded-lg border border-line-strong bg-surface/98 px-3.5 py-2.5 shadow-lg backdrop-blur-sm">
