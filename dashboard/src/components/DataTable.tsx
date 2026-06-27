@@ -1,4 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
+import {
+  flexRender,
+  getCoreRowModel,
+  getFilteredRowModel,
+  getSortedRowModel,
+  useReactTable,
+  type ColumnDef,
+  type RowData,
+  type SortingState,
+} from '@tanstack/react-table'
 import { dataApi, type ApiRow } from '../dataApi'
 import { listDistricts, YEARS, LATEST_YEAR, lastMonthIndex } from '../dataService'
 import { MONTHS, type Year } from '../types'
@@ -8,18 +18,24 @@ import { Modal, Field } from './Modal'
 const intl = (v: number) => v.toLocaleString('en-IN')
 const lastMonth = (y: Year | 'all') => (y === 'all' ? 12 : lastMonthIndex(y) + 1)
 
-type SortKey = 'district' | 'year' | 'month' | 'cases' | 'deaths' | 'population' | 'attack_rate' | 'cfr'
-const COLS: { key: SortKey | null; label: string; right?: boolean }[] = [
-  { key: 'district', label: 'District' },
-  { key: 'year', label: 'Year' },
-  { key: 'month', label: 'Month' },
-  { key: 'cases', label: 'Cases', right: true },
-  { key: 'deaths', label: 'Deaths', right: true },
-  { key: 'population', label: 'Population', right: true },
-  { key: 'attack_rate', label: 'Attack /100k', right: true },
-  { key: 'cfr', label: 'CFR %', right: true },
-  { key: null, label: '' },
-]
+// Stable secondary ordering applied after every column's primary comparison,
+// matching the original hand-rolled table.
+const tie = (a: ApiRow, b: ApiRow) =>
+  a.district.localeCompare(b.district) || a.year - b.year || (a.month ?? 0) - (b.month ?? 0)
+
+declare module '@tanstack/react-table' {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface ColumnMeta<TData extends RowData, TValue> {
+    right?: boolean
+  }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  interface TableMeta<TData extends RowData> {
+    onOpenDistrict?: (d: string, y: Year) => void
+    openEdit: (r: ApiRow) => void
+    del: (r: ApiRow) => void
+    monthly: boolean
+  }
+}
 
 export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: Year) => void }) {
   const DISTRICTS = useMemo(() => listDistricts().slice().sort(), [])
@@ -29,7 +45,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
   const [query, setQuery] = useState('')
   const [yearFilter, setYearFilter] = useState<Year | 'all'>('all')
   const [monthFilter, setMonthFilter] = useState<number | 'months' | 'year'>('months')
-  const [sort, setSort] = useState<{ key: SortKey; dir: 1 | -1 }>({ key: 'district', dir: 1 })
+  const [sorting, setSorting] = useState<SortingState>([{ id: 'district', desc: false }])
   const [busy, setBusy] = useState(false)
   const [showImport, setShowImport] = useState(false)
   const [editRow, setEditRow] = useState<ApiRow | null>(null)
@@ -48,24 +64,7 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
       : dataApi.list(yr, monthFilter)
     req.then((d) => { setRows(d); setErr('') }).catch((e) => setErr(String(e.message || e))).finally(() => setLoading(false))
   }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(load, [yearFilter, monthFilter])
-
-  const toggleSort = (k: SortKey) => setSort((s) => (s.key === k ? { key: k, dir: (s.dir === 1 ? -1 : 1) as 1 | -1 } : { key: k, dir: 1 }))
-
-  const view = useMemo(() => {
-    const q = query.trim().toLowerCase()
-    const tie = (a: ApiRow, b: ApiRow) => a.district.localeCompare(b.district) || a.year - b.year || (a.month ?? 0) - (b.month ?? 0)
-    const cmp = (a: ApiRow, b: ApiRow) => {
-      const k = sort.key
-      let d = k === 'district' ? a.district.localeCompare(b.district)
-        : k === 'month' ? (a.month ?? 0) - (b.month ?? 0)
-        : (a[k] as number) - (b[k] as number)
-      if (d === 0) d = tie(a, b)
-      return d * sort.dir
-    }
-    return rows.filter((r) => !q || r.district.toLowerCase().includes(q)).sort(cmp)
-  }, [rows, query, sort])
 
   const keyOf = (r: ApiRow) => `${r.district}|${r.year}|${r.month ?? 'Y'}`
 
@@ -98,6 +97,71 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
       setAddOpen(false); setAddForm({ district: DISTRICTS[0] ?? '', year: String(LATEST_YEAR) }); load()
     } catch (e) { setErr(String((e as Error).message)) } finally { setBusy(false) }
   }
+
+  const columns = useMemo<ColumnDef<ApiRow>[]>(() => {
+    const numSort = (key: 'cases' | 'deaths' | 'population' | 'attack_rate' | 'cfr') =>
+      (a: { original: ApiRow }, b: { original: ApiRow }) => {
+        const d = ((a.original[key] as number) ?? 0) - ((b.original[key] as number) ?? 0)
+        return d !== 0 ? d : tie(a.original, b.original)
+      }
+    return [
+      {
+        accessorKey: 'district',
+        header: 'District',
+        sortingFn: (a, b) => { const d = a.original.district.localeCompare(b.original.district); return d !== 0 ? d : tie(a.original, b.original) },
+        cell: ({ row, table }) => (
+          <button className="font-600 text-ink hover:text-brand-strong hover:underline" onClick={() => table.options.meta?.onOpenDistrict?.(row.original.district, row.original.year as Year)} title="View on map">{row.original.district}</button>
+        ),
+      },
+      {
+        accessorKey: 'year',
+        header: 'Year',
+        sortingFn: (a, b) => { const d = a.original.year - b.original.year; return d !== 0 ? d : tie(a.original, b.original) },
+        cell: ({ row }) => <span className="font-mono text-ink">{row.original.year}</span>,
+      },
+      {
+        accessorKey: 'month',
+        header: 'Month',
+        sortingFn: (a, b) => { const d = (a.original.month ?? 0) - (b.original.month ?? 0); return d !== 0 ? d : tie(a.original, b.original) },
+        cell: ({ row }) => <span className="text-ink-soft">{row.original.month ? MONTHS[row.original.month - 1] : 'Year'}</span>,
+      },
+      { accessorKey: 'cases', header: 'Cases', meta: { right: true }, sortingFn: numSort('cases'), cell: ({ row }) => <span className="font-mono text-ink">{intl(row.original.cases)}</span> },
+      { accessorKey: 'deaths', header: 'Deaths', meta: { right: true }, sortingFn: numSort('deaths'), cell: ({ row }) => <span className="font-mono text-ink">{intl(row.original.deaths)}</span> },
+      { accessorKey: 'population', header: 'Population', meta: { right: true }, sortingFn: numSort('population'), cell: ({ row }) => <span className="font-mono text-ink-soft">{row.original.population ? intl(row.original.population) : '—'}</span> },
+      { accessorKey: 'attack_rate', header: 'Attack /100k', meta: { right: true }, sortingFn: numSort('attack_rate'), cell: ({ row }) => <span className="font-mono text-ink-soft">{row.original.attack_rate?.toFixed(1) ?? '—'}</span> },
+      { accessorKey: 'cfr', header: 'CFR %', meta: { right: true }, sortingFn: numSort('cfr'), cell: ({ row }) => <span className="font-mono text-ink-soft">{(row.original.cfr ?? 0).toFixed(2)}%</span> },
+      {
+        id: 'actions',
+        header: '',
+        enableSorting: false,
+        meta: { right: true },
+        cell: ({ row, table }) => {
+          const m = table.options.meta!
+          return m.monthly
+            ? <button onClick={() => m.openEdit(row.original)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-brand-strong hover:bg-brand-soft">Edit</button>
+            : <button onClick={() => m.del(row.original)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-alert hover:bg-alert/10">Delete</button>
+        },
+      },
+    ]
+  }, [])
+
+  // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Table returns non-memoizable fns; React Compiler safely skips memoizing this component.
+  const table = useReactTable({
+    data: rows,
+    columns,
+    state: { sorting, globalFilter: query },
+    onSortingChange: setSorting,
+    onGlobalFilterChange: setQuery,
+    globalFilterFn: (row, _id, value) => row.original.district.toLowerCase().includes(String(value).trim().toLowerCase()),
+    getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    enableSortingRemoval: false,
+    enableMultiSort: false,
+    sortDescFirst: false,
+    meta: { onOpenDistrict, openEdit, del, monthly },
+  })
+  const view = table.getRowModel().rows
 
   const monthOptions = Array.from({ length: lastMonth(yearFilter) }, (_, i) => i + 1)
 
@@ -154,36 +218,36 @@ export function DataTable({ onOpenDistrict }: { onOpenDistrict?: (d: string, y: 
         <div className="min-h-0 flex-1 overflow-auto">
           <table className="w-full border-collapse text-[0.9rem]">
             <thead className="sticky top-0 z-10 bg-panel">
-              <tr>
-                {COLS.map((c) => (
-                  <th key={c.label || 'actions'} className={`border-b border-line px-4 py-2.5 font-600 text-ink-soft ${c.right ? 'text-right' : 'text-left'}`}>
-                    {c.key ? (
-                      <button onClick={() => toggleSort(c.key!)} className={`inline-flex items-center gap-1 hover:text-brand-strong ${c.right ? 'flex-row-reverse' : ''}`}>
-                        {c.label}
-                        <span className="text-[0.7rem] text-ink-faint">{sort.key === c.key ? (sort.dir === 1 ? '▲' : '▼') : '↕'}</span>
-                      </button>
-                    ) : c.label}
-                  </th>
-                ))}
-              </tr>
+              {table.getHeaderGroups().map((hg) => (
+                <tr key={hg.id}>
+                  {hg.headers.map((h) => {
+                    const right = h.column.columnDef.meta?.right
+                    const dir = h.column.getIsSorted()
+                    return (
+                      <th key={h.id} className={`border-b border-line px-4 py-2.5 font-600 text-ink-soft ${right ? 'text-right' : 'text-left'}`}>
+                        {h.column.getCanSort() ? (
+                          <button onClick={h.column.getToggleSortingHandler()} className={`inline-flex items-center gap-1 hover:text-brand-strong ${right ? 'flex-row-reverse' : ''}`}>
+                            {flexRender(h.column.columnDef.header, h.getContext())}
+                            <span className="text-[0.7rem] text-ink-faint">{dir === 'asc' ? '▲' : dir === 'desc' ? '▼' : '↕'}</span>
+                          </button>
+                        ) : flexRender(h.column.columnDef.header, h.getContext())}
+                      </th>
+                    )
+                  })}
+                </tr>
+              ))}
             </thead>
             <tbody>
-              {view.map((r) => (
-                <tr key={keyOf(r)} className="odd:bg-panel/40 hover:bg-brand-soft/40">
-                  <td className="border-b border-line px-4 py-1.5 font-600 text-ink">
-                    <button className="hover:text-brand-strong hover:underline" onClick={() => onOpenDistrict?.(r.district, r.year as Year)} title="View on map">{r.district}</button>
-                  </td>
-                  <td className="border-b border-line px-4 py-1.5 font-mono text-ink">{r.year}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-ink-soft">{r.month ? MONTHS[r.month - 1] : 'Year'}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink">{intl(r.cases)}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink">{intl(r.deaths)}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{r.population ? intl(r.population) : '—'}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{r.attack_rate?.toFixed(1) ?? '—'}</td>
-                  <td className="border-b border-line px-4 py-1.5 text-right font-mono text-ink-soft">{(r.cfr ?? 0).toFixed(2)}%</td>
-                  <td className="border-b border-line px-3 py-1.5 text-right whitespace-nowrap">
-                    {monthly && <button onClick={() => openEdit(r)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-brand-strong hover:bg-brand-soft">Edit</button>}
-                    {!monthly && <button onClick={() => del(r)} className="rounded-md px-2 py-1 text-[0.78rem] font-600 text-alert hover:bg-alert/10">Delete</button>}
-                  </td>
+              {view.map((row) => (
+                <tr key={keyOf(row.original)} className="odd:bg-panel/40 hover:bg-brand-soft/40">
+                  {row.getVisibleCells().map((cell) => {
+                    const isActions = cell.column.id === 'actions'
+                    return (
+                      <td key={cell.id} className={`border-b border-line py-1.5 ${isActions ? 'px-3 whitespace-nowrap' : 'px-4'} ${cell.column.columnDef.meta?.right ? 'text-right' : ''}`}>
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      </td>
+                    )
+                  })}
                 </tr>
               ))}
             </tbody>
