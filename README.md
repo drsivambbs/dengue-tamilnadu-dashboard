@@ -56,6 +56,24 @@ district figures.
 - **Population:** Government of Tamil Nadu (Census 2011, projected)
 - **District boundaries:** [geoBoundaries](https://www.geoboundaries.org/) gbOpen IND ADM2 (CC-BY)
 
+## Deployment
+
+The dashboard is a static Vite build served by nginx on **Google Cloud Run**
+(project `merlionz-batchbook`, region `asia-south1`, service `dengue-dashboard`).
+
+```bash
+cd dashboard
+npm run build                                    # produces dashboard/dist/
+cd ..
+gcloud run deploy dengue-dashboard \
+  --source dashboard --region asia-south1 \
+  --project merlionz-batchbook --quiet
+```
+
+The `Dockerfile` bakes `dist/` into nginx; `.gcloudignore` uploads only the built
+site + container config. Live URL:
+<https://dengue-dashboard-502856744185.asia-south1.run.app>
+
 ## Roadmap
 
 - [x] Data cleaning, attack-rate computation, WHO-style static maps
