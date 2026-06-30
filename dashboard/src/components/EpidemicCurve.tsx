@@ -3,9 +3,10 @@ import {
   ComposedChart, Area, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   ReferenceArea, ReferenceDot, Label,
 } from 'recharts'
-import { getMonthlyCases, getMonthlyMetric, isPartial, YEARS } from '../dataService'
+import { getMonthlyCases, getMonthlyMetric, getMonthlyWeather, isPartial, YEARS } from '../dataService'
 import { METRIC_CONFIG } from '../metrics'
 import { MONTHS, type Metric, type Year } from '../types'
+import { LagStrip } from './LagStrip'
 
 // Year series colours: latest = red, second-latest = blue, older = grey.
 function buildSeries(years: Year[]) {
@@ -31,14 +32,14 @@ interface CurveTooltipProps {
   payload?: { name?: string; value?: number; color?: string }[]
 }
 
-export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: string | null; metric: Metric; years?: Year[] }) {
+export function EpidemicCurve({ selected, metric, years = YEARS, showRain = false, lag = 1, onLagChange }: { selected: string | null; metric: Metric; years?: Year[]; showRain?: boolean; lag?: number; onLagChange?: (lag: number) => void }) {
   const fmtVal = METRIC_CONFIG[metric].format
   const yrs = useMemo(() => [...years].sort((a, b) => a - b), [years])
   const SERIES = useMemo(() => buildSeries(yrs), [yrs])
   // Latest non-partial year among those shown — basis for the peak marker + band.
   const LATEST_FULL_YEAR = useMemo(() => [...yrs].reverse().find((y) => !isPartial(y)) ?? yrs[yrs.length - 1], [yrs])
 
-  const { data, peak, season } = useMemo(() => {
+  const { data, peak, season, flatCases, flatRain } = useMemo(() => {
     // Reported extent comes from cases (a 0-CFR month is real, not "no data").
     const byYear = yrs.map((y) => {
       const cases = getMonthlyCases(y, selected)
@@ -48,9 +49,17 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
       const series = vals.map((v, i) => (i <= last ? v : null))
       return { y, series }
     })
+    // Seasonal rainfall climatology: average each calendar month across the
+    // selected years, then shift cyclically by `lag` so month i shows the rain
+    // from `lag` months earlier in a typical year.
+    const rainAvg = MONTHS.map((_, i) => {
+      const vals = yrs.map((y) => getMonthlyWeather(y, selected).rain[i]).filter((v): v is number => v != null)
+      return vals.length ? vals.reduce((a, v) => a + v, 0) / vals.length : null
+    })
     const rows = MONTHS.map((m, i) => {
       const row: Record<string, number | string | null> = { month: m }
       byYear.forEach(({ y, series }) => (row[y] = series[i]))
+      row._rain = rainAvg[(i - lag + 12) % 12]
       return row
     })
 
@@ -72,12 +81,27 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
       while (e < 11 && prof[e + 1] >= thr) e++
     }
 
+    // Continuous chronological series across the shown years for the lag
+    // correlation (cases vs same-month rainfall), trimmed of the trailing
+    // unreported tail so structural zeros don't dilute the coefficient.
+    const flatCases: number[] = []
+    const flatRain: (number | null)[] = []
+    yrs.forEach((y) => {
+      const vals = getMonthlyMetric(y, selected, metric)
+      const w = getMonthlyWeather(y, selected)
+      for (let i = 0; i < 12; i++) { flatCases.push(vals[i] ?? 0); flatRain.push(w.rain[i]) }
+    })
+    let lastRep = flatCases.length - 1
+    while (lastRep >= 0 && !(flatCases[lastRep] > 0)) lastRep--
+
     return {
       data: rows,
       peak: peakVal > 0 ? { month: MONTHS[pIdx], value: peakVal } : null,
       season: peakVal > 0 ? { start: MONTHS[s], end: MONTHS[e] } : null,
+      flatCases: flatCases.slice(0, lastRep + 1),
+      flatRain: flatRain.slice(0, lastRep + 1),
     }
-  }, [selected, metric, yrs, LATEST_FULL_YEAR])
+  }, [selected, metric, yrs, LATEST_FULL_YEAR, lag])
 
   const axisFmt = (v: number) => {
     if (metric === 'cases') return v >= 1000 ? `${v / 1000}k` : `${v}`
@@ -89,9 +113,10 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
     if (!active || !payload?.length) return null
     // Dedupe by series name — the shaded Area shares the latest year's name with
     // its Line, which would otherwise list that year twice.
+    const rain = payload.find((p) => p.name === 'Rainfall')
     const seen = new Set<string>()
     const rows = [...payload]
-      .filter((p) => p.value != null && p.name != null && !seen.has(p.name) && seen.add(p.name))
+      .filter((p) => p.value != null && p.name != null && p.name !== 'Rainfall' && !seen.has(p.name) && seen.add(p.name))
       .sort((a, b) => (b.value as number) - (a.value as number))
     return (
       <div className="rounded-lg border border-line-strong bg-surface/98 px-3.5 py-2.5 shadow-lg backdrop-blur-sm">
@@ -106,6 +131,15 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
               <dd className="font-mono font-600 text-ink">{fmtVal(r.value as number)}</dd>
             </div>
           ))}
+          {showRain && rain?.value != null && (
+            <div className="flex items-center justify-between gap-4 text-[0.86rem]">
+              <dt className="flex items-center gap-2 text-[#2b8a3e]">
+                <span className="inline-block h-2.5 w-2.5 rounded-full bg-[#2b8a3e]" />
+                Rainfall (−{lag}mo)
+              </dt>
+              <dd className="font-mono font-600 text-ink">{Math.round(rain.value)} mm</dd>
+            </div>
+          )}
         </dl>
       </div>
     )
@@ -125,7 +159,7 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
 
             {/* Dynamic high-season band (from full-year averages) */}
             {season && (
-              <ReferenceArea x1={season.start} x2={season.end} fill="#c77d12" fillOpacity={0.08} stroke="none">
+              <ReferenceArea yAxisId="left" x1={season.start} x2={season.end} fill="#c77d12" fillOpacity={0.08} stroke="none">
                 <Label value="Peak season" position="insideTop" fontSize={11} fill="#9a6a10" />
               </ReferenceArea>
             )}
@@ -139,6 +173,7 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
               padding={{ left: 10, right: 10 }}
             />
             <YAxis
+              yAxisId="left"
               tick={{ fontSize: 12.5, fill: '#4b5d70' }}
               tickLine={false}
               axisLine={false}
@@ -152,14 +187,20 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
                 style={{ fontSize: 12, fill: '#7488a0', textAnchor: 'middle' }}
               />
             </YAxis>
+            {showRain && (
+              <YAxis yAxisId="rain" orientation="right" tick={{ fontSize: 12, fill: '#2b8a3e' }} tickLine={false} axisLine={false} width={48} tickFormatter={(v: number) => `${v}`}>
+                <Label value="Rainfall (mm)" angle={90} position="insideRight" style={{ fontSize: 12, fill: '#2b8a3e', textAnchor: 'middle' }} />
+              </YAxis>
+            )}
             <Tooltip content={Tip as never} cursor={{ stroke: '#b7c4d6', strokeWidth: 1 }} />
 
             {/* Soft fill under the latest full year for emphasis */}
-            <Area type="monotone" dataKey={String(LATEST_FULL_YEAR)} stroke="none" fill="url(#curveFill)" isAnimationActive={false} />
+            <Area yAxisId="left" type="monotone" dataKey={String(LATEST_FULL_YEAR)} stroke="none" fill="url(#curveFill)" isAnimationActive={false} />
 
             {SERIES.map((s) => (
               <Line
                 key={s.year}
+                yAxisId="left"
                 type="monotone"
                 dataKey={String(s.year)}
                 name={String(s.year)}
@@ -173,8 +214,12 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
               />
             ))}
 
+            {showRain && (
+              <Line yAxisId="rain" type="monotone" dataKey="_rain" name="Rainfall" stroke="#2b8a3e" strokeWidth={2} strokeDasharray="5 3" dot={false} connectNulls isAnimationActive={false} />
+            )}
+
             {peak && (
-              <ReferenceDot x={peak.month} y={peak.value} r={5} fill="#1f5fa6" stroke="#fff" strokeWidth={1.5}>
+              <ReferenceDot yAxisId="left" x={peak.month} y={peak.value} r={5} fill="#1f5fa6" stroke="#fff" strokeWidth={1.5}>
                 <Label value={`Peak · ${peak.month}`} position="top" fontSize={11} fill="#16487f" fontWeight={600} />
               </ReferenceDot>
             )}
@@ -192,10 +237,20 @@ export function EpidemicCurve({ selected, metric, years = YEARS }: { selected: s
               {isPartial(s.year) && <span className="text-ink-faint">({isPartial(s.year)})</span>}
             </span>
           ))}
+          {showRain && (
+            <span className="flex items-center gap-1.5 text-[0.85rem] text-[#2b8a3e]">
+              <span className="inline-block h-0.5 w-5 rounded bg-[#2b8a3e]" />
+              Rainfall, {lag === 0 ? 'same month' : `${lag} mo earlier`} (mm avg)
+            </span>
+          )}
         </div>
-        <span className="text-[0.76rem] text-ink-faint">
-          {season ? `Shaded band = peak season (${season.start}–${season.end})` : 'No peak season'}
-        </span>
+        {showRain && onLagChange ? (
+          <LagStrip cases={flatCases} rain={flatRain} lag={lag} onPick={onLagChange} />
+        ) : (
+          <span className="text-[0.76rem] text-ink-faint">
+            {season ? `Shaded band = peak season (${season.start}–${season.end})` : 'No peak season'}
+          </span>
+        )}
       </div>
     </div>
   )

@@ -1,9 +1,12 @@
 import { useMemo, useState } from 'react'
 
+const ALL_LABEL = 'All districts'
+
 /**
- * Accessible district search. A text box filters the 38 districts; clicking a
- * result (or pressing Enter on the first match) selects it. Large touch targets
- * and clear focus states for senior users.
+ * Accessible district search + dropdown. A text box filters the 38 districts;
+ * clicking a result (or pressing Enter on the first match) selects it. The list
+ * always opens with an "All districts" row that clears to the whole-state view.
+ * Large touch targets and clear focus states for senior users.
  */
 export function DistrictSearch({
   districts,
@@ -12,7 +15,7 @@ export function DistrictSearch({
 }: {
   districts: string[]
   selected: string | null
-  onSelect: (d: string) => void
+  onSelect: (d: string | null) => void
 }) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
@@ -23,7 +26,10 @@ export function DistrictSearch({
     return districts.filter((d) => d.toLowerCase().includes(q))
   }, [districts, query])
 
-  const choose = (d: string) => {
+  // "All districts" shows whenever the query is empty or loosely matches it.
+  const showAll = !query.trim() || ALL_LABEL.toLowerCase().includes(query.trim().toLowerCase())
+
+  const choose = (d: string | null) => {
     onSelect(d)
     setQuery('')
     setOpen(false)
@@ -39,7 +45,7 @@ export function DistrictSearch({
         <input
           type="text"
           value={query}
-          placeholder={selected ?? 'Search a district…'}
+          placeholder={selected ?? ALL_LABEL}
           onChange={(e) => {
             setQuery(e.target.value)
             setOpen(true)
@@ -47,7 +53,7 @@ export function DistrictSearch({
           onFocus={() => setOpen(true)}
           onBlur={() => setTimeout(() => setOpen(false), 120)}
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && matches.length) choose(matches[0])
+            if (e.key === 'Enter') choose(matches.length ? matches[0] : showAll ? null : selected)
             if (e.key === 'Escape') setOpen(false)
           }}
           className="w-full bg-transparent text-[0.85rem] font-600 text-ink placeholder:font-400 placeholder:text-ink-faint focus:outline-none"
@@ -64,7 +70,20 @@ export function DistrictSearch({
           role="listbox"
           className="absolute z-20 mt-1 max-h-64 w-full overflow-y-auto rounded-lg border border-line-strong bg-surface py-1 shadow-lg"
         >
-          {matches.length === 0 && (
+          {showAll && (
+            <li role="option" aria-selected={selected === null}>
+              <button
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => choose(null)}
+                className={`w-full border-b border-line px-3.5 py-2.5 text-left text-[0.92rem] transition-colors hover:bg-brand-soft ${
+                  selected === null ? 'font-600 text-brand-strong' : 'text-ink'
+                }`}
+              >
+                {ALL_LABEL} <span className="text-ink-faint">· whole Tamil Nadu</span>
+              </button>
+            </li>
+          )}
+          {matches.length === 0 && !showAll && (
             <li className="px-3.5 py-2 text-[0.88rem] text-ink-faint">No match</li>
           )}
           {matches.map((d) => (
