@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "merlionz-batchbook"
+  },
+  "targets": {
+    "merlionz-batchbook": {
+      "hosting": {
+        "dengue-tn": ["dengue-tn"]
+      }
+    }
+  }
+}

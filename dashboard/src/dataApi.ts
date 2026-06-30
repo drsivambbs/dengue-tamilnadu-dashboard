@@ -104,9 +104,13 @@ export const dataApi = {
     const qs = q.toString()
     return fetch(`${API_URL}/api/rows${qs ? `?${qs}` : ''}`).then(handle)
   },
-  /** Next-30-day district outbreak risk (self-refitting NB model + live rain). */
-  risk: (force?: boolean): Promise<RiskResponse> =>
-    fetch(`${API_URL}/api/risk${force ? '?force=true' : ''}`).then(handle),
+  /** Next-30-day district outbreak risk (self-refitting NB model + live rain).
+   *  `thresholdPct` re-scores cheaply (the server caches the fit). */
+  risk: (thresholdPct = 75, force = false): Promise<RiskResponse> => {
+    const q = new URLSearchParams({ threshold_pct: String(thresholdPct) })
+    if (force) q.set('force', 'true')
+    return fetch(`${API_URL}/api/risk?${q}`).then(handle)
+  },
   saveMonthly: (r: MonthlyInput): Promise<MonthlyInput> => post('/api/monthly', r, 'PUT'),
   bulkImport: (rows: MonthlyInput[]): Promise<{ imported: number; years: number[] }> =>
     post('/api/monthly/bulk', { rows }, 'POST'),

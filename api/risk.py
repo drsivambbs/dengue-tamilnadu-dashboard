@@ -50,7 +50,7 @@ _ctx = ssl.create_default_context()
 _ctx.check_hostname = False
 _ctx.verify_mode = ssl.CERT_NONE
 
-_CACHE = {"sig": None, "ts": 0.0, "data": None}
+_CACHE = {"sig": None, "ts": 0.0, "fit": None}
 TTL = 3600  # seconds; live rainfall is daily-resolution, so hourly is plenty
 
 
@@ -159,8 +159,9 @@ def _tier(prob: float) -> str:
 # ---- model (pure: testable with injected climate) --------------------------
 
 def build_and_fit(case_rows: list[dict], monthly_clim: dict, recent_clim: dict) -> dict:
-    """Fit the NB model and predict next-30-day risk per district. Pure function
-    so it can be unit-tested with bundled climate instead of a live fetch."""
+    """Fit the NB model and return per-district artifacts (predicted mean μ, the
+    case history and live rainfall) needed to score risk at *any* threshold.
+    Pure function so it can be unit-tested with bundled climate."""
     df = pd.DataFrame(case_rows)
     df = df[(df["population"] > 0)].copy()
     df["t"] = df["year"] * 12 + (df["month"] - 1)
@@ -176,7 +177,7 @@ def build_and_fit(case_rows: list[dict], monthly_clim: dict, recent_clim: dict) 
         df[f"{v}_l"] = df.groupby("district")[v].shift(LAG)
     df["rain10_l"] = df["rain_l"] / 10.0
 
-    thresholds = df.groupby("district")["cases"].quantile(THRESHOLD_Q)
+    case_hist = {d: [float(x) for x in g] for d, g in df.groupby("district")["cases"]}
 
     fit = df.dropna(subset=["rain10_l", "temp_l", "hum_l", "cases", "population"]).copy()
     fit["log_pop"] = np.log(fit["population"])
@@ -209,54 +210,62 @@ def build_and_fit(case_rows: list[dict], monthly_clim: dict, recent_clim: dict) 
     pf = pd.DataFrame(pred_rows)
     pf["mu"] = np.asarray(nb.predict(pf, offset=pf["log_pop"]))
 
+    return {
+        "alpha": float(alpha),
+        "nObs": int(len(fit)),
+        "asOf": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "mu": {r["district"]: float(r["mu"]) for _, r in pf.iterrows()},
+        "rain30d": {r["district"]: float(r["rain_30d"]) for _, r in pf.iterrows()},
+        "caseHist": case_hist,
+    }
+
+
+def score(fit: dict, threshold_pct: int) -> dict:
+    """Score each district's P(cases ≥ its threshold_pct-percentile month) from
+    the cached fit — cheap, so the threshold can be moved without re-fitting."""
+    q = min(max(threshold_pct, 1), 99) / 100.0
+    alpha = fit["alpha"]
     n = 1.0 / alpha
-    districts_out = []
-    for _, row in pf.iterrows():
-        d = row["district"]
-        mu_d = float(row["mu"])
-        thr = max(int(round(float(thresholds.get(d, 0)))), 1)
+    out = []
+    for d, mu_d in fit["mu"].items():
+        hist = fit["caseHist"].get(d, [])
+        thr = max(int(round(float(np.quantile(hist, q)))) if hist else 1, 1)
         p = n / (n + mu_d)
         prob = float(1.0 - nbinom.cdf(thr - 1, n, p))
-        districts_out.append({
+        out.append({
             "district": d,
             "predictedCases": round(mu_d, 1),
             "threshold": thr,
             "probability": round(prob, 3),
-            "rain30d": round(float(row["rain_30d"]), 1),
+            "rain30d": round(fit["rain30d"].get(d, 0.0), 1),
             "tier": _tier(prob),
         })
-    districts_out.sort(key=lambda x: x["probability"], reverse=True)
-
+    out.sort(key=lambda x: x["probability"], reverse=True)
     return {
         "model": "negative binomial",
         "lagMonths": LAG,
         "windowMonths": WINDOW_MONTHS,
-        "thresholdPct": int(THRESHOLD_Q * 100),
+        "thresholdPct": int(threshold_pct),
         "alpha": round(alpha, 3),
-        "nObs": int(len(fit)),
-        "asOf": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+        "nObs": fit["nObs"],
+        "asOf": fit["asOf"],
         "horizonDays": 30,
-        "districts": districts_out,
+        "districts": out,
     }
 
 
-def compute_risk(case_rows: list[dict], force: bool = False) -> dict:
-    """Cached entry point. Re-fits when the case data changes or the TTL lapses."""
+def compute_risk(case_rows: list[dict], threshold_pct: int = 75, force: bool = False) -> dict:
+    """Cached entry point. The fit (fetch + NB) is cached and re-used; only the
+    cheap re-scoring runs when the threshold changes. Re-fits when the case data
+    changes or the TTL lapses."""
     sig = (len(case_rows), max((r["year"] * 12 + r["month"] for r in case_rows), default=0),
            int(sum(r["cases"] for r in case_rows)))
     now = time.time()
-    if not force and _CACHE["data"] and _CACHE["sig"] == sig and now - _CACHE["ts"] < TTL:
-        return _CACHE["data"]
-
-    df = pd.DataFrame(case_rows)
-    tmax_row = df.loc[df["year"] * 12 + (df["month"] - 1) == (df["year"] * 12 + (df["month"] - 1)).max()].iloc[0]
-    start_year = int(max(df["year"].min(), tmax_row["year"] - WINDOW_MONTHS // 12 - 1))
-    start_date = f"{start_year}-01-01"
-    end_date = date.today().isoformat()
-
-    monthly_clim = _fetch_monthly_climate(start_date, end_date)
-    recent_clim = _fetch_recent_climate()
-    data = build_and_fit(case_rows, monthly_clim, recent_clim)
-
-    _CACHE.update(sig=sig, ts=now, data=data)
-    return data
+    if force or not _CACHE["fit"] or _CACHE["sig"] != sig or now - _CACHE["ts"] >= TTL:
+        df = pd.DataFrame(case_rows)
+        tmax_year = int(df.loc[(df["year"] * 12 + (df["month"] - 1)).idxmax(), "year"])
+        start_year = int(max(df["year"].min(), tmax_year - WINDOW_MONTHS // 12 - 1))
+        monthly_clim = _fetch_monthly_climate(f"{start_year}-01-01", date.today().isoformat())
+        recent_clim = _fetch_recent_climate()
+        _CACHE.update(sig=sig, ts=now, fit=build_and_fit(case_rows, monthly_clim, recent_clim))
+    return score(_CACHE["fit"], threshold_pct)

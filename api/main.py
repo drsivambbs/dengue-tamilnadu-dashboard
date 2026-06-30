@@ -112,10 +112,11 @@ MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oc
 
 
 @app.get("/api/risk")
-def risk(force: bool = False):
+def risk(threshold_pct: int = 75, force: bool = False):
     """District outbreak-risk for the next ~30 days: a self-refitting negative-
     binomial model of monthly cases on lagged rainfall, scored against live
-    rainfall up to today. Re-fits on the current data each (cached) refresh."""
+    rainfall up to today. Re-fits on the current data each (cached) refresh;
+    `threshold_pct` (the "above-normal month" percentile) re-scores cheaply."""
     rows = list(client.query(
         f"SELECT m.district, m.year, m.month, m.cases, p.population "
         f"FROM `{MONTHLY}` m LEFT JOIN `{POP}` p USING (district, year)"
@@ -124,7 +125,7 @@ def risk(force: bool = False):
                   "cases": r["cases"] or 0, "population": r["population"] or 0} for r in rows]
     try:
         from risk import compute_risk  # lazy: keeps stats deps off the other routes
-        return compute_risk(case_rows, force=force)
+        return compute_risk(case_rows, threshold_pct=threshold_pct, force=force)
     except Exception as e:  # noqa: BLE001
         raise HTTPException(503, f"risk model unavailable: {e}")
 

@@ -20,6 +20,9 @@ dist/
 .env
 .env.local
 
+# Firebase Hosting deploy cache
+.firebase/
+
 # OS
 .DS_Store
 Thumbs.db

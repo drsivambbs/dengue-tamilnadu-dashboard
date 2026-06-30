@@ -3,7 +3,7 @@ import { Map as MapGL, Source, Layer, NavigationControl } from 'react-map-gl/map
 import type { MapLayerMouseEvent, StyleSpecification } from 'react-map-gl/maplibre'
 import type { FeatureCollection } from 'geojson'
 import 'maplibre-gl/dist/maplibre-gl.css'
-import { getMonthlyCases, getMonthlyWeather, getRecord, listDistricts, YEARS, lastMonthIndex } from '../dataService'
+import { getMonthlyWeather, listDistricts, YEARS, lastMonthIndex } from '../dataService'
 import { dataApi, type RiskDistrict } from '../dataApi'
 import { colorExpression, sampleColors } from '../metrics'
 import { classify } from '../classify'
@@ -28,14 +28,15 @@ const int = (v: number) => Math.round(v).toLocaleString('en-IN')
 const one = (v: number) => v.toFixed(1)
 const lastMonthIdx = (y: Year) => lastMonthIndex(y)
 
-type Key = 'cases' | 'attackRate' | 'rain' | 'hum' | 'risk'
+type Key = 'risk' | 'predicted' | 'rain' | 'hum'
 const FIELD: Record<Key, { label: string; unit: string; fmt: (v: number) => string }> = {
-  cases: { label: 'Cases', unit: 'cases', fmt: int },
-  attackRate: { label: 'Attack rate', unit: '/100k', fmt: one },
+  risk: { label: 'Outbreak risk', unit: '%', fmt: (v) => `${Math.round(v * 100)}` },
+  predicted: { label: 'Predicted cases', unit: 'cases', fmt: int },
   rain: { label: 'Rainfall', unit: 'mm', fmt: int },
   hum: { label: 'Humidity', unit: '%', fmt: one },
-  risk: { label: 'Outbreak risk', unit: '%', fmt: (v) => `${Math.round(v * 100)}` },
 }
+// `risk` and `predicted` are both next-30-day forecast layers from /api/risk.
+const isForecastKey = (k: Key) => k === 'risk' || k === 'predicted'
 // Fixed risk bands (probability) → tier colours, instead of data-driven quantiles.
 const RISK_BREAKS = [0.25, 0.5, 0.8]
 const TIER_COLOR: Record<RiskDistrict['tier'], string> = {
@@ -56,15 +57,18 @@ export function GisDashboard() {
   const [riskMeta, setRiskMeta] = useState<{ asOf: string; horizonDays: number; thresholdPct: number; nObs: number } | null>(null)
   const [riskLoading, setRiskLoading] = useState(false)
   const [riskError, setRiskError] = useState<string | null>(null)
+  const [thresholdPct, setThresholdPct] = useState(75) // "above-normal month" percentile
+
+  const isForecast = isForecastKey(varKey)
 
   useEffect(() => {
     fetch('/tamilnadu_districts.geojson').then((r) => r.json()).then(setBoundaries).catch(() => {})
     fetch('/district_links.geojson').then((r) => r.json()).then(setLinks).catch(() => {})
   }, [])
 
-  const loadRisk = useCallback((force = false) => {
+  const loadRisk = useCallback((pct: number, force = false) => {
     setRiskLoading(true); setRiskError(null)
-    dataApi.risk(force)
+    dataApi.risk(pct, force)
       .then((r) => {
         setRisk(Object.fromEntries(r.districts.map((d) => [d.district, d])))
         setRiskMeta({ asOf: r.asOf, horizonDays: r.horizonDays, thresholdPct: r.thresholdPct, nObs: r.nObs })
@@ -73,22 +77,27 @@ export function GisDashboard() {
       .finally(() => setRiskLoading(false))
   }, [])
 
-  // Fetch the (cached) risk model once the user first opens the risk layer.
+  // Fetch the (cached) model once the user first opens a forecast layer.
   useEffect(() => {
-    if (varKey === 'risk' && !riskMeta && !riskLoading && !riskError) loadRisk()
-  }, [varKey, riskMeta, riskLoading, riskError, loadRisk])
+    if (isForecast && !riskMeta && !riskLoading && !riskError) loadRisk(thresholdPct)
+  }, [isForecast, riskMeta, riskLoading, riskError, loadRisk, thresholdPct])
+
+  // Re-score (cheaply, server-side) when the threshold slider settles.
+  useEffect(() => {
+    if (!isForecast || !riskMeta || riskMeta.thresholdPct === thresholdPct) return
+    const id = setTimeout(() => loadRisk(thresholdPct), 400)
+    return () => clearTimeout(id)
+  }, [thresholdPct, isForecast, riskMeta, loadRisk])
 
   const month = Math.min(monthIdx, lastMonthIdx(year))
   const vdef = FIELD[varKey]
 
   const valAt = useCallback((key: Key, district: string, y: Year, m: number): number | null => {
     if (key === 'risk') return risk[district]?.probability ?? null
+    if (key === 'predicted') return risk[district]?.predictedCases ?? null
     if (key === 'rain') return getMonthlyWeather(y, district).rain[m] ?? null
     if (key === 'hum') return (getMonthlyWeather(y, district).hum ?? [])[m] ?? null
-    const cm = getMonthlyCases(y, district)
-    if (key === 'cases') return cm[m]
-    const pop = getRecord(district, y)?.population
-    return pop ? (cm[m] / pop) * 1e5 : null
+    return null
   }, [risk])
 
   const breaks = useMemo(() => {
@@ -98,8 +107,9 @@ export function GisDashboard() {
   }, [varKey, year, month, valAt])
 
   const rankedRisk = useMemo(
-    () => Object.values(risk).sort((a, b) => b.probability - a.probability),
-    [risk],
+    () => Object.values(risk).sort((a, b) => (varKey === 'predicted'
+      ? b.predictedCases - a.predictedCases : b.probability - a.probability)),
+    [risk, varKey],
   )
 
   const fc = useMemo<FeatureCollection | null>(() => {
@@ -164,18 +174,31 @@ export function GisDashboard() {
           ))}
         </div>
 
-        {varKey === 'risk' ? (
+        {isForecast ? (
           <div className="mt-3 border-t border-line pt-2.5">
-            <p className="mb-1 text-[0.68rem] font-600 uppercase tracking-wide text-ink-faint">Forecast</p>
-            <p className="text-[0.78rem] text-ink-soft">Next {riskMeta?.horizonDays ?? 30} days · P(cases ≥ each district's P{riskMeta?.thresholdPct ?? 75} month)</p>
-            <p className="mt-0.5 text-[0.72rem] text-ink-faint">
+            <p className="mb-1 text-[0.68rem] font-600 uppercase tracking-wide text-ink-faint">Forecast · next {riskMeta?.horizonDays ?? 30} days</p>
+            <p className="text-[0.78rem] text-ink-soft">
+              {varKey === 'risk'
+                ? `Probability of an above-normal case month (≥ each district's P${thresholdPct} level)`
+                : 'Expected cases from the model, given live rainfall'}
+            </p>
+            <div className="mt-2">
+              <label className="flex items-center justify-between text-[0.72rem] font-600 text-ink-soft">
+                <span>“Above-normal” level</span>
+                <span className="font-mono text-ink">P{thresholdPct}</span>
+              </label>
+              <input type="range" min={50} max={95} step={5} value={thresholdPct}
+                onChange={(e) => setThresholdPct(Number(e.target.value))}
+                className="mt-0.5 w-full accent-[var(--color-brand)]" aria-label="Above-normal percentile" />
+            </div>
+            <p className="mt-1 text-[0.72rem] text-ink-faint">
               {riskMeta ? `NB model · ${riskMeta.nObs} obs · as of ${new Date(riskMeta.asOf).toLocaleDateString('en-IN', { dateStyle: 'medium' })}`
                 : riskLoading ? 'Fitting model + fetching live rainfall…' : ''}
             </p>
             {riskError && <p className="mt-0.5 text-[0.72rem] text-[#c0392b]">Could not load risk: {riskError}</p>}
-            <button onClick={() => loadRisk(true)} disabled={riskLoading}
+            <button onClick={() => loadRisk(thresholdPct, true)} disabled={riskLoading}
               className="mt-1.5 rounded-md bg-panel px-2.5 py-1 text-[0.8rem] font-600 text-ink-soft hover:bg-brand-soft disabled:opacity-50">
-              {riskLoading ? 'Refreshing…' : 'Refresh'}
+              {riskLoading ? 'Updating…' : 'Refresh'}
             </button>
           </div>
         ) : (
@@ -201,7 +224,7 @@ export function GisDashboard() {
       {/* Legend */}
       <div className="pointer-events-none absolute bottom-3 left-3 z-10 rounded-lg border border-line bg-surface/92 px-3 py-2.5 shadow-md backdrop-blur-sm">
         <p className="mb-1.5 text-[0.72rem] font-600 uppercase tracking-[0.05em] text-ink-soft">
-          {vdef.label} <span className="font-400 text-ink-faint">· {vdef.unit} · {varKey === 'risk' ? `next ${riskMeta?.horizonDays ?? 30} days` : `${MONTHS[month]} ${year}`}</span>
+          {vdef.label} <span className="font-400 text-ink-faint">· {vdef.unit} · {isForecast ? `next ${riskMeta?.horizonDays ?? 30} days` : `${MONTHS[month]} ${year}`}</span>
         </p>
         <ul className="space-y-1">
           {legend.map((row) => (
@@ -217,7 +240,7 @@ export function GisDashboard() {
         <div className="pointer-events-none absolute z-10 w-56 rounded-lg border border-line-strong bg-surface/97 p-3 shadow-lg" style={{ left: Math.min(hover.x + 14, 9999), top: hover.y + 14 }}>
           <p className="mb-1.5 font-serif text-[1rem] font-600 text-ink">{hover.district}</p>
           <dl className="space-y-1 text-[0.84rem]">
-            {varKey === 'risk' ? (
+            {isForecast ? (
               risk[hover.district] ? (
                 <>
                   <Row label={`Risk (${riskMeta?.horizonDays ?? 30}d)`} value={`${Math.round(risk[hover.district].probability * 100)}% · ${risk[hover.district].tier}`} />
@@ -234,7 +257,7 @@ export function GisDashboard() {
       )}
 
       {/* Ranked risk table (the "table" view, alongside the map layer) */}
-      {varKey === 'risk' && (
+      {isForecast && (
         <div className="absolute right-3 top-3 z-10 flex max-h-[calc(100%-1.5rem)] w-72 flex-col rounded-lg border border-line bg-surface/95 shadow-md backdrop-blur-sm">
           <div className="border-b border-line px-3 py-2">
             <p className="font-serif text-[0.98rem] font-600 text-ink">Outbreak risk · next {riskMeta?.horizonDays ?? 30} days</p>
