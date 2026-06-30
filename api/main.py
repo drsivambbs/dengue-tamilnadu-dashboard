@@ -111,6 +111,24 @@ def health():
 MONTH_ABBR = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 
+@app.get("/api/risk")
+def risk(force: bool = False):
+    """District outbreak-risk for the next ~30 days: a self-refitting negative-
+    binomial model of monthly cases on lagged rainfall, scored against live
+    rainfall up to today. Re-fits on the current data each (cached) refresh."""
+    rows = list(client.query(
+        f"SELECT m.district, m.year, m.month, m.cases, p.population "
+        f"FROM `{MONTHLY}` m LEFT JOIN `{POP}` p USING (district, year)"
+    ).result())
+    case_rows = [{"district": r["district"], "year": r["year"], "month": r["month"],
+                  "cases": r["cases"] or 0, "population": r["population"] or 0} for r in rows]
+    try:
+        from risk import compute_risk  # lazy: keeps stats deps off the other routes
+        return compute_risk(case_rows, force=force)
+    except Exception as e:  # noqa: BLE001
+        raise HTTPException(503, f"risk model unavailable: {e}")
+
+
 @app.get("/api/dashboard")
 def dashboard():
     """Full dengue.json-shaped payload for the live dashboard, assembled from the

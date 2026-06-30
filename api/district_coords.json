@@ -1,0 +1,154 @@
+{
+ "Ariyalur": {
+  "lat": 11.1624,
+  "lon": 79.2439
+ },
+ "Sivaganga": {
+  "lat": 9.9148,
+  "lon": 78.602
+ },
+ "Thanjavur": {
+  "lat": 10.668,
+  "lon": 79.2444
+ },
+ "Tiruvannamalai": {
+  "lat": 12.4336,
+  "lon": 79.1685
+ },
+ "Ramanathapuram": {
+  "lat": 9.438,
+  "lon": 78.6742
+ },
+ "Tirunelveli": {
+  "lat": 8.5729,
+  "lon": 77.6001
+ },
+ "Virudhunagar": {
+  "lat": 9.4915,
+  "lon": 77.9097
+ },
+ "Thiruvarur": {
+  "lat": 10.6809,
+  "lon": 79.5366
+ },
+ "Thiruvallur": {
+  "lat": 13.2396,
+  "lon": 79.9447
+ },
+ "Tiruchirappalli": {
+  "lat": 10.8896,
+  "lon": 78.5705
+ },
+ "Tiruppur": {
+  "lat": 10.8391,
+  "lon": 77.4079
+ },
+ "Theni": {
+  "lat": 9.892,
+  "lon": 77.4403
+ },
+ "Salem": {
+  "lat": 11.676,
+  "lon": 78.2231
+ },
+ "Madurai": {
+  "lat": 9.9212,
+  "lon": 78.0076
+ },
+ "Perambalur": {
+  "lat": 11.2758,
+  "lon": 78.8914
+ },
+ "Dindigul": {
+  "lat": 10.3912,
+  "lon": 77.8209
+ },
+ "Karur": {
+  "lat": 10.8443,
+  "lon": 78.1346
+ },
+ "Dharmapuri": {
+  "lat": 12.1087,
+  "lon": 78.1905
+ },
+ "Namakkal": {
+  "lat": 11.3177,
+  "lon": 78.1368
+ },
+ "Cuddalore": {
+  "lat": 11.5354,
+  "lon": 79.4527
+ },
+ "Pudukkottai": {
+  "lat": 10.3602,
+  "lon": 78.88
+ },
+ "Vellore": {
+  "lat": 12.8921,
+  "lon": 78.9268
+ },
+ "Chennai": {
+  "lat": 13.0639,
+  "lon": 80.2436
+ },
+ "Nagapattinam": {
+  "lat": 10.5784,
+  "lon": 79.7648
+ },
+ "Villupuram": {
+  "lat": 12.1173,
+  "lon": 79.5219
+ },
+ "Kanchipuram": {
+  "lat": 12.5851,
+  "lon": 80.0061
+ },
+ "Kanniyakumari": {
+  "lat": 8.3075,
+  "lon": 77.3633
+ },
+ "Tuticorin": {
+  "lat": 8.9021,
+  "lon": 77.9997
+ },
+ "Krishnagiri": {
+  "lat": 12.4913,
+  "lon": 78.0334
+ },
+ "Erode": {
+  "lat": 11.517,
+  "lon": 77.4138
+ },
+ "Coimbatore": {
+  "lat": 10.8777,
+  "lon": 76.978
+ },
+ "The Nilgiris": {
+  "lat": 11.4506,
+  "lon": 76.6458
+ },
+ "Tirupathur": {
+  "lat": 12.5788,
+  "lon": 78.6559
+ },
+ "Ranipet": {
+  "lat": 12.9576,
+  "lon": 79.4484
+ },
+ "Chengalpattu": {
+  "lat": 12.8369,
+  "lon": 79.8462
+ },
+ "Kallakurichi": {
+  "lat": 11.7925,
+  "lon": 79.0095
+ },
+ "Mayiladuthurai": {
+  "lat": 11.1537,
+  "lon": 79.7098
+ },
+ "Tenkasi": {
+  "lat": 9.084,
+  "lon": 77.4558
+ }
+}

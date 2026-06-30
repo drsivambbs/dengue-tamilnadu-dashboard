@@ -33,6 +33,29 @@ export interface PopulationInput {
   population: number
 }
 
+/** One district's next-30-day outbreak-risk row from /api/risk. */
+export interface RiskDistrict {
+  district: string
+  predictedCases: number
+  threshold: number
+  probability: number // 0–1, P(cases ≥ threshold in the next ~30 days)
+  rain30d: number     // live rainfall (mm) over the last ~30 days
+  tier: 'Low' | 'Moderate' | 'High' | 'Very high'
+}
+
+/** Self-refitting risk forecast payload from /api/risk. */
+export interface RiskResponse {
+  model: string
+  lagMonths: number
+  windowMonths: number
+  thresholdPct: number
+  alpha: number
+  nObs: number
+  asOf: string
+  horizonDays: number
+  districts: RiskDistrict[]
+}
+
 /** A district's 2011 census base + per-district annual growth rate (%). */
 export interface BaseRow {
   district: string
@@ -81,6 +104,9 @@ export const dataApi = {
     const qs = q.toString()
     return fetch(`${API_URL}/api/rows${qs ? `?${qs}` : ''}`).then(handle)
   },
+  /** Next-30-day district outbreak risk (self-refitting NB model + live rain). */
+  risk: (force?: boolean): Promise<RiskResponse> =>
+    fetch(`${API_URL}/api/risk${force ? '?force=true' : ''}`).then(handle),
   saveMonthly: (r: MonthlyInput): Promise<MonthlyInput> => post('/api/monthly', r, 'PUT'),
   bulkImport: (rows: MonthlyInput[]): Promise<{ imported: number; years: number[] }> =>
     post('/api/monthly/bulk', { rows }, 'POST'),
